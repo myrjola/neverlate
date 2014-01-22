@@ -1,0 +1,18 @@
+[submodule "chef/cookbooks/postgresql"]
+	path = chef/cookbooks/postgresql
+	url = git@github.com:hw-cookbooks/postgresql.git
+[submodule "chef/cookbooks/apt"]
+	path = chef/cookbooks/apt
+	url = git@github.com:opscode-cookbooks/apt.git
+[submodule "chef/cookbooks/python"]
+	path = chef/cookbooks/python
+	url = git@github.com:poise/python.git
+[submodule "chef/cookbooks/build-essential"]
+	path = chef/cookbooks/build-essential
+	url = git@github.com:opscode-cookbooks/build-essential.git
+[submodule "chef/cookbooks/gunicorn"]
+	path = chef/cookbooks/gunicorn
+	url = git@github.com:opscode-cookbooks/gunicorn.git
+[submodule "chef/cookbooks/supervisor"]
+	path = chef/cookbooks/supervisor
+	url = https://github.com/poise/supervisor
