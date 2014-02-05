@@ -91,5 +91,7 @@ TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, "templates"),
 )
 
+AUTH_PROFILE_MODULE = 'neverlate.UserProfile'
+
 LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
