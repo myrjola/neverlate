@@ -9,6 +9,7 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^accounts/', include("allaccess.urls")),
     url(r'^$', 'neverlate.views.frontpage', ),
     url(r'^register/$', 'neverlate.views.register', name="Neverlate Registration"),
     url(r'^profile/$', 'neverlate.views.profile', name="Neverlate Profile"),
