@@ -13,6 +13,15 @@ class UserProfile(models.Model):
         return "%s's profile" % self.user
 
 
+class ICalURL(models.Model):
+    user = models.ForeignKey(UserProfile)
+    name = models.CharField(max_length=50)
+    url = models.CharField(max_length=400)
+
+    def __str__(self):
+        return "%s's profile" % self.user
+
+
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         profile, created = UserProfile.objects.get_or_create(user=instance)
