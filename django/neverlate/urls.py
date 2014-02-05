@@ -11,4 +11,6 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'neverlate.views.frontpage', ),
     url(r'^register/$', 'neverlate.views.register', name="Neverlate Registration"),
+    url(r'^profile/$', 'neverlate.views.profile', name="Neverlate Profile"),
+    url(r'^login/$', 'django.contrib.auth.views.login', name="Neverlate Login"),
 )

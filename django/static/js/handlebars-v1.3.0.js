@@ -1284,7 +1284,7 @@ var __module10__ = (function(__dependency1__) {
 
   function Compiler() {}
 
-  __exports__.Compiler = Compiler;// the foundHelper register will disambiguate helper lookup from finding a
+  __exports__.Compiler = Compiler;// the foundHelper registration will disambiguate helper lookup from finding a
   // function in a context. This is necessary for mustache compatibility, which
   // requires that context functions in blocks are evaluated by blockHelperMissing,
   // and then proceed as if the resulting value was provided to blockHelperMissing.
@@ -2276,7 +2276,7 @@ var __module11__ = (function(__dependency1__, __dependency2__) {
 
       // Always flush subexpressions. This is both to prevent the compounding size issue that
       // occurs when the code has to be duplicated for inlining and also to prevent errors
-      // due to the incorrect options object being passed due to the shared register.
+      // due to the incorrect options object being passed due to the shared registration.
       if (!isRoot) {
         this.flushInline();
       }
