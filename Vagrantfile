@@ -4,6 +4,10 @@
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
+unless Vagrant.has_plugin?("vagrant-omnibus")
+    raise 'omnibus-plugin is not installed! Please run "vagrant plugin install vagrant-omnibus" '
+end
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # All Vagrant configuration is done here. The most common configuration
   # options are documented and commented below. For a complete reference,
@@ -12,6 +16,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "base"
 
+  config.omnibus.chef_version = :latest
+
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
   config.vm.box_url = "http://files.vagrantup.com/lucid32.box"
@@ -19,7 +25,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network :forwarded_port, guest: 8000, host: 8000
+  config.vm.network :forwarded_port, guest: 80, host: 8080
 
   # If true, then any SSH connections made will enable agent forwarding.
   # Default value: false
@@ -50,6 +56,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision :chef_solo do |chef|
     chef.cookbooks_path = "chef/cookbooks"
     chef.roles_path = "chef/roles"
-    chef.add_role "neverlatedev"
+    chef.add_role "neverlate_production"
   end
 end

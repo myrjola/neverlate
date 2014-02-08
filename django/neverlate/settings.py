@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'allaccess',
     'neverlate',
+    'gunicorn',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -90,6 +91,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = '/srv/neverlate/static/'
+
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
@@ -102,3 +105,8 @@ AUTH_PROFILE_MODULE = 'neverlate.UserProfile'
 
 LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+}
