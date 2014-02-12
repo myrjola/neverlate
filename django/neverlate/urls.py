@@ -16,6 +16,8 @@ urlpatterns = patterns('',
     url(r'^profile/$', 'neverlate.views.profile', name="Neverlate Profile"),
     url(r'^login/$', 'django.contrib.auth.views.login', name="Neverlate Login"),
     url(r'^logout/$', 'django.contrib.auth.views.logout', {"next_page": "/"}, name="Neverlate Logout"),
+    url(r'^change_password/$', 'django.contrib.auth.views.password_change',
+        {"post_change_redirect": "neverlate.views.profile"}, name="Neverlate Password Change"),
 )
 
 #urlpatterns += staticfiles_urlpatterns()
