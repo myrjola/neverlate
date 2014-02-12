@@ -2,6 +2,7 @@
 *.log
 *.pot
 *.pyc
+*.orig
 /.idea/*
 .vagrant
 local_settings.py
