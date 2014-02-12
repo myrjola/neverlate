@@ -7,7 +7,7 @@ from django.db.models.signals import post_save
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
     #other fields here
-    home_adress = models.CharField(max_length=200)
+    home_adress = models.CharField("home address", max_length=200)
 
     def __str__(self):
         return "%s's profile" % self.user
