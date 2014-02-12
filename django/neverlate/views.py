@@ -20,6 +20,7 @@ def register(request):
 def profile(request):
     profile_form = None
     user_form = None
+    was_saved = False
     if request.user.is_authenticated():
         if request.method == 'POST':
             profile_form = UserProfileForm(request.POST, instance=request.user.userprofile)
@@ -27,11 +28,13 @@ def profile(request):
             if profile_form.is_valid() and user_form.is_valid():
                 profile_form.save()
                 user_form.save()
+                was_saved = True
         else:
             profile_form = UserProfileForm(instance=request.user.userprofile)
             user_form = UserForm(instance=request.user)
 
     return render(request, 'profile.html',
                   {'authenticated': request.user.is_authenticated(),
+                   'was_saved': was_saved,
                    'profile_form': profile_form,
                    'user_form': user_form})
