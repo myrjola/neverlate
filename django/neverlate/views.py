@@ -18,21 +18,20 @@ def register(request):
     return render(request, "register.html", {'form': form})
 
 def profile(request):
+    profile_form = None
+    user_form = None
     if request.user.is_authenticated():
         if request.method == 'POST':
-            # TODO: save
             profile_form = UserProfileForm(request.POST, instance=request.user.userprofile)
             user_form = UserForm(request.POST, instance=request.user)
-            if profile_form.is_valid and user_form.is_valid:
-                # save
+            if profile_form.is_valid() and user_form.is_valid():
                 profile_form.save()
                 user_form.save()
         else:
             profile_form = UserProfileForm(instance=request.user.userprofile)
             user_form = UserForm(instance=request.user)
-        return render(request, 'profile.html',
-                      {'authenticated': True,
-                       'profile_form': profile_form,
-                       'user_form': user_form})
-    else:
-        return render(request, 'profile.html', {'authenticated': False})
+
+    return render(request, 'profile.html',
+                  {'authenticated': request.user.is_authenticated(),
+                   'profile_form': profile_form,
+                   'user_form': user_form})
