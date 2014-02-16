@@ -26,6 +26,9 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Celery config
+BROKER_URL = 'django://'
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
 # Application definition
 
@@ -39,6 +42,9 @@ INSTALLED_APPS = (
     'allaccess',
     'neverlate',
     'gunicorn',
+    'calparser',
+    'kombu.transport.django',
+    'djcelery',
 )
 
 AUTHENTICATION_BACKENDS = (

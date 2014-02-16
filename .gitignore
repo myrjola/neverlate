@@ -10,3 +10,4 @@ local_settings.py
 /django/0001_facebook_provider.yaml
 /django/db.sqlite3
 venv/
+/neverlate_ve/*
