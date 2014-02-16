@@ -29,6 +29,14 @@ ALLOWED_HOSTS = []
 # Celery config
 BROKER_URL = 'django://'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+from datetime import timedelta
+CELERYBEAT_SCHEDULE = {
+    'reload_calendars': {
+        'task': 'neverlate.tasks.reload_all_user_calendars',
+        'schedule': timedelta(hours=6),
+    },
+}
+CELERY_TIMEZONE = 'UTC'
 
 # Application definition
 
