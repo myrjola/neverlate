@@ -8,6 +8,7 @@
 
 
 }
+#map-canvas { height: 100% }
 #jumboroute:hover {
     opacity: 1;
 }
