@@ -1,0 +1,15 @@
+<script id="route_front" type="text/x-handlebars-template">
+
+<div class="row">
+    {{#each legs}}
+        <div class="jumbotron" id="jumboroute" onclick="alert('{{ type }}')">
+        <p>{{duration}}</p>
+        <p>{{length}}</p>
+        {{#each locs}}
+            <div>{{coord.x}}</div>
+            <div>{{coord.y}}</div>
+            {{/each}}
+        </div>
+    {{/each}}
+</div>
+</script>

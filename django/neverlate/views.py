@@ -2,9 +2,20 @@ from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, render
 from forms import UserProfileForm, UserForm
+from .utils import render_to_json
+import requests
 
 def frontpage(request):
-    return render_to_response('base.html', {'user': request.user})
+    return render_to_response('frontpage.html', {'user': request.user})
+
+@render_to_json()
+def getRoutePlannerJson(request):
+    if request.method == "GET":
+        routePlannerUrl = "http://api.reittiopas.fi/hsl/prod/?request=route&user=neverlate&pass=neverlate&format=json&from=2548196,6678528&to=2549062,6678638&callback=?"
+        r = requests.get(routePlannerUrl);
+        if(r.status_code == 200):
+            return r.text
+
 
 def register(request):
     if request.method == 'POST':

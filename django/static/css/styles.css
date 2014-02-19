@@ -1,3 +1,16 @@
+#jumboroute {
+    border-radius: 5px;
+    opacity: .7;
+    transition: opacity .5s ease-out;
+    -moz-transition: opacity .5s ease-out;
+    -webkit-transition: opacity .5s ease-out;
+    -o-transition: opacity .5s ease-out;
+
+
+}
+#jumboroute:hover {
+    opacity: 1;
+}
 #topic {
     float:left;
     padding-left: 2em;
@@ -49,21 +62,19 @@ body {
 #buttons {
     padding-bottom: 1em;
 }
+.img-container{
+    height: 250px;
+    display: table-cell;
+    vertical-align: middle;
 
-#images {
+}
+
+.img-container > img {
+    margin: 0 auto;
     width: 100%;
 }
 
-#id_username,
-#id_password,
-#id_password1,
-#id_password2,
-#album_name,
-#id_email,
-#id_home_adress,
-#id_old_password,
-#id_new_password1,
-#id_new_password2 {
+#id_username, #id_password, #id_password1, #id_password2, #album_name {
     display: block;
 width: 100%;
 height: 34px;
@@ -75,11 +86,9 @@ vertical-align: middle;
 background-color: #fff;
 background-image: none;
 border: 1px solid #ccc;
-border-radius: 4px;
 -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
 box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
 -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 
 }
-
