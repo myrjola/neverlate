@@ -1,8 +1,13 @@
 <script id="route_front" type="text/x-handlebars-template">
 
+
 <div class="row">
+
     {{#each legs}}
-        <div class="jumbotron" id="jumboroute" onclick="alert('{{ type }}')">
+
+        <div class="jumbotron" id="jumboroute">
+
+        <div id="map-canvas"></div>
         <p>{{duration}}</p>
         <p>{{length}}</p>
         {{#each locs}}
@@ -12,4 +17,7 @@
         </div>
     {{/each}}
 </div>
+
+
+
 </script>
