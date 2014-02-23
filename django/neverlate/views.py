@@ -1,7 +1,9 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, render
-from forms import UserProfileForm, UserForm
+import requests
+
+from forms import UserProfileForm, UserForm, CalendarFormSet
 from .utils import render_to_json
 import requests
 import json
@@ -47,22 +49,28 @@ def register(request):
 def profile(request):
     profile_form = None
     user_form = None
+    calendar_formset = None
     was_saved = False
     if request.user.is_authenticated():
         if request.method == 'POST':
             profile_form = UserProfileForm(request.POST, instance=request.user.userprofile)
             user_form = UserForm(request.POST, instance=request.user)
-            if profile_form.is_valid() and user_form.is_valid():
+            calendar_formset = CalendarFormSet(request.POST, instance=request.user.userprofile)
+
+            if profile_form.is_valid() and user_form.is_valid() and calendar_formset.is_valid():
                 profile_form.save()
                 user_form.save()
+                calendar_formset.save()
                 was_saved = True
         else:
             profile_form = UserProfileForm(instance=request.user.userprofile)
             user_form = UserForm(instance=request.user)
+            calendar_formset = CalendarFormSet(instance=request.user.userprofile)
 
     return render(request, 'profile.html',
                   {'authenticated': request.user.is_authenticated(),
                    'was_saved': was_saved,
                    'profile_form': profile_form,
                    'user_form': user_form,
-                   'user_id' : request.user.id})
+                   'user_id' : request.user.id,
+                   'calendar_formset': calendar_formset})
