@@ -4,10 +4,13 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, render
+from django.forms.models import inlineformset_factory
 import requests
 
-from forms import UserProfileForm, UserForm, CalendarFormSet
+from forms import UserProfileForm, UserForm
 from tasks import reload_user_calendars
+from models import UserProfile, ICalURL
+
 from .utils import render_to_json
 import requests
 import json
@@ -57,6 +60,7 @@ def profile(request):
     calendar_formset = None
     was_saved = False
     task_id = None
+    CalendarFormSet = inlineformset_factory(UserProfile, ICalURL)
     if request.user.is_authenticated():
         if request.method == 'POST':
             profile_form = UserProfileForm(
@@ -65,16 +69,15 @@ def profile(request):
             calendar_formset = CalendarFormSet(
                 request.POST, instance=request.user.userprofile)
 
-            if (profile_form.is_valid()
-                and user_form.is_valid()
+            if (profile_form.is_valid() and user_form.is_valid()
                 and calendar_formset.is_valid()):
                 profile_form.save()
                 user_form.save()
                 # Start async task if calendars changes
-                if calendar_formset.save():
+                print calendar_formset.deleted_forms
+                if (calendar_formset.save() or calendar_formset.deleted_forms):
                     task_id = reload_user_calendars.delay(request.user).task_id
                     request.session['task_id'] = task_id
-                    print "Task id", task_id
 
                 was_saved = True
         else:
