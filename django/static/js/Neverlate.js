@@ -15,10 +15,10 @@ $(function () {
     );
 });
 
-Neverlate.loadRoutes = function() {
+Neverlate.loadRoutes = function(point1,point2) {
     $(document).ready(function () {
         console.log("loading data fron routeplanner");
-        var url= "/routeplanner";
+        var url= "/routeplanner?point1="+point1+"&point2="+point2;
         $.getJSON(url, function(result){
             Neverlate.parseRoute(result);
         });
