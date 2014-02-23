@@ -32,25 +32,26 @@ Neverlate.parseRoute = function(data){
     var source = Neverlate.templates.route_front;
     var template = Handlebars.compile(source);
     var html = template(toJson[0][0]);
+    var coordinates = []; // TODO: put route data for maps here (1 entry for each leg)
     $("#content-placeholder").html(html);
-    Neverlate.loadMaps();
+    Neverlate.loadMaps(coordinates);
 }
 
 
-Neverlate.loadMaps = function(){ //TODO give coordinates from parsed data
-   var s = document.createElement("script");
-   s.type = "text/javascript";
-   s.src  = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAoHieetxNcdqJ4PDij87fi2KH8tOhMK2Y&sensor=true&callback=gmap_draw";
-   $("head").append(s);
-       window.gmap_draw = function(){
-           $("#map-canvas").each(function() {
-               console.log("drawed a map");
-       var mapOptions = {
-          center: new google.maps.LatLng(-34.397, 150.644),
-          zoom: 8
-        };
-        var map = new google.maps.Map(document.getElementById("map-canvas"),
-            mapOptions);
+Neverlate.loadMaps = function(coordinates){ //TODO give coordinates from parsed data
+    var s = document.createElement("script");
+    s.type = "text/javascript";
+    s.src  = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAoHieetxNcdqJ4PDij87fi2KH8tOhMK2Y&sensor=true&callback=gmap_draw";
+    $("head").append(s);
+    window.gmap_draw = function(){
+        $(".map-canvas").each(function(index) {
+            // TODO: use coordinates[index] to display to route on the map and center it
+            console.log("drawed a map");
+            var mapOptions = {
+                center: new google.maps.LatLng(-34.397, 150.644),
+                zoom: 8
+            };
+            var map = new google.maps.Map($(this)[0], mapOptions);
         });
     }
 }

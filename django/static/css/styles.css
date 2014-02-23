@@ -1,4 +1,4 @@
-#jumboroute {
+.jumboroute {
     border-radius: 5px;
     opacity: .7;
     transition: opacity .5s ease-out;
@@ -8,11 +8,11 @@
 
 
 }
-#map-canvas {
+.map-canvas {
     height: 200px;
     width: 200px;
 }
-#jumboroute:hover {
+.jumboroute:hover {
     opacity: 1;
 }
 #topic {
