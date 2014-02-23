@@ -92,7 +92,6 @@ def profile(request):
                    'profile_form': profile_form,
                    'user_form': user_form,
                    'user_id': request.user.id,
-                   'calendar_reload_task': calendar_reload_task,
                    'task_id': task_id,
                    'calendar_formset': calendar_formset})
 
