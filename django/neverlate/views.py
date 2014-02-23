@@ -4,14 +4,30 @@ from django.shortcuts import render_to_response, render
 from forms import UserProfileForm, UserForm
 from .utils import render_to_json
 import requests
+import json
+
+api_creds = "&user=neverlate&pass=neverlate"
 
 def frontpage(request):
     return render_to_response('frontpage.html', {'user': request.user})
 
+def get_coords(point):
+    print "point was " + point
+    url = "http://api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key="+point+api_creds
+    r = requests.get(url)
+    print r.text
+    geocode = json.loads(r.text)
+    print geocode[0]["coords"]
+    return geocode[0]["coords"]
+
 @render_to_json()
 def getRoutePlannerJson(request):
     if request.method == "GET":
-        routePlannerUrl = "http://api.reittiopas.fi/hsl/prod/?request=route&user=neverlate&pass=neverlate&format=json&from=2548196,6678528&to=2549062,6678638&callback=?"
+        point1 = request.GET.get("point1", "")
+        point2 = request.GET.get("point2", "")
+        coords1 = get_coords(point1)
+        coords2 = get_coords(point2)
+        routePlannerUrl = "http://api.reittiopas.fi/hsl/prod/?request=route&format=json&from="+coords1+"&to="+coords2+"&callback=?"+api_creds
         r = requests.get(routePlannerUrl);
         if(r.status_code == 200):
             return r.text
@@ -48,4 +64,5 @@ def profile(request):
                   {'authenticated': request.user.is_authenticated(),
                    'was_saved': was_saved,
                    'profile_form': profile_form,
-                   'user_form': user_form})
+                   'user_form': user_form,
+                   'user_id' : request.user.id})
