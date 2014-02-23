@@ -1,4 +1,8 @@
 {% extends "base.html" %}
+{% load staticfiles %}
+
+{% block head %}
+{% endblock %}
 
 {% block title %}Your Profile{% endblock %}
 
@@ -13,6 +17,15 @@
                 {% csrf_token %}
                 {% if was_saved %}
                     <div class="alert alert-success">Changes successfully saved.</div>
+                    <div id='calendarUpdateStatus'>
+                      <div class="alert alert-warning">
+                        <div id='calendarUpdateStatusContent'>Updating calendars.</div>
+                      </div>
+                    </div>
+                    {% if task_id %}
+                        <p>Querying...</p>
+                        <script src="{% static 'js/CalendarReloadAjax.js' %}"></script>
+                    {% endif %}
                 {% endif %}
                 {{ user_form.as_p }}
                 {{ profile_form.as_p }}

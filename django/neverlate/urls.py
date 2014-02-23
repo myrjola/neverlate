@@ -17,6 +17,9 @@ urlpatterns = patterns('',
                        url(r'^routeplanner/*.', 'neverlate.views.getRoutePlannerJson', ),
                        url(r'^register/$', 'neverlate.views.register', name="Neverlate Registration"),
                        url(r'^profile/$', 'neverlate.views.profile', name="Neverlate Profile"),
+                       url(r'^profile/status/', 'neverlate.views.reload_calendars_ajax_view', name="async status"),
+                       # for ajax
+
                        url(r'^login/$', 'django.contrib.auth.views.login', name="Neverlate Login"),
                        url(r'^logout/$', 'django.contrib.auth.views.logout', {"next_page": "/"},
                            name="Neverlate Logout"),
