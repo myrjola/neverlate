@@ -4,6 +4,7 @@ from django.shortcuts import render_to_response, render
 import requests
 
 from forms import UserProfileForm, UserForm, CalendarFormSet
+from tasks import reload_user_calendars
 from .utils import render_to_json
 import requests
 import json
@@ -50,6 +51,7 @@ def profile(request):
     profile_form = None
     user_form = None
     calendar_formset = None
+    calendar_reload_task = None
     was_saved = False
     if request.user.is_authenticated():
         if request.method == 'POST':
@@ -60,7 +62,10 @@ def profile(request):
             if profile_form.is_valid() and user_form.is_valid() and calendar_formset.is_valid():
                 profile_form.save()
                 user_form.save()
-                calendar_formset.save()
+                # Start async task if calendars changes
+                if calendar_formset.save():
+                    calendar_reload_task = reload_user_calendars.delay(request.user)
+
                 was_saved = True
         else:
             profile_form = UserProfileForm(instance=request.user.userprofile)
@@ -73,4 +78,12 @@ def profile(request):
                    'profile_form': profile_form,
                    'user_form': user_form,
                    'user_id' : request.user.id,
+                   'calendar_reload_task': calendar_reload_task,
                    'calendar_formset': calendar_formset})
+
+
+def reload_calendars_ajax_view(request, task_id):
+    results = reload_user_calendars.AsyncResult(task_id)
+    if results.ready():
+        return render_to_response('ajax_fragment.html', {})
+    return render_to_response('not_ready.html', {})
