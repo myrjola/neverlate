@@ -48,4 +48,15 @@ application 'neverlate' do
   gunicorn do
     app_module :django
   end
+
+  celery do
+    config "local_celery.py"
+    django true
+    celerybeat true
+    celerycam true
+    broker do
+      transport "django"
+      host_role "neverlate_production"
+    end
+  end
 end
