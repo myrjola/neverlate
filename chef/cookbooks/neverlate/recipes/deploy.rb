@@ -41,11 +41,22 @@ application 'neverlate' do
       adapter  'postgresql_psycopg2'
       username 'neverlate'
       password 'neverlate'
+      host     'localhost'
     end
-    database_master_role 'neverlate_database_master'
   end
 
   gunicorn do
     app_module :django
+  end
+
+  celery do
+    config "local_celery.py"
+    django true
+    celerybeat true
+    celerycam true
+    broker do
+      transport "django"
+      host_role "neverlate_production"
+    end
   end
 end

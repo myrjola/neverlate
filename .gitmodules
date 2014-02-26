@@ -46,3 +46,27 @@
 [submodule "chef/cookbooks/rsyslog"]
 	path = chef/cookbooks/rsyslog
 	url = https://github.com/opscode-cookbooks/rsyslog.git
+[submodule "chef/cookbooks/xfs"]
+	path = chef/cookbooks/xfs
+	url = https://github.com/opscode-cookbooks/xfs.git
+[submodule "chef/cookbooks/mysql"]
+	path = chef/cookbooks/mysql
+	url = https://github.com/opscode-cookbooks/mysql.git
+[submodule "chef/cookbooks/aws"]
+	path = chef/cookbooks/aws
+	url = https://github.com/opscode-cookbooks/aws.git
+[submodule "chef/cookbooks/database"]
+	path = chef/cookbooks/database
+	url = https://github.com/opscode-cookbooks/database.git
+[submodule "chef/cookbooks/homebrew"]
+	path = chef/cookbooks/homebrew
+	url = https://github.com/opscode-cookbooks/homebrew.git
+[submodule "chef/cookbooks/windows"]
+	path = chef/cookbooks/windows
+	url = https://github.com/opscode-cookbooks/windows.git
+[submodule "chef/cookbooks/chef_handler"]
+	path = chef/cookbooks/chef_handler
+	url = https://github.com/opscode-cookbooks/chef_handler.git
+[submodule "chef/cookbooks/powershell"]
+	path = chef/cookbooks/powershell
+	url = https://github.com/opscode-cookbooks/powershell.git
