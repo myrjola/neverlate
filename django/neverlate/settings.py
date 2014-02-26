@@ -124,3 +124,8 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
 }
+
+try:
+    from local_settings import *
+except ImportError as e:
+    pass
