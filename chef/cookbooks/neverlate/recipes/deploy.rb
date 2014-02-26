@@ -41,8 +41,8 @@ application 'neverlate' do
       adapter  'postgresql_psycopg2'
       username 'neverlate'
       password 'neverlate'
+      host     'localhost'
     end
-    database_master_role 'neverlate_database_master'
   end
 
   gunicorn do
