@@ -21,6 +21,14 @@ class ICalURL(models.Model):
         return "%s: %s" % (self.name, self.url)
 
 
+class TooltipMessage(models.Model):
+    icon_id = models.CharField(max_length=50, primary_key=True, db_index=True)
+    content = models.CharField(max_length=2000)
+
+    def __str__(self):
+        return "Tooltip message for %s" % self.icon_id
+
+
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         profile, created = UserProfile.objects.get_or_create(user=instance)
