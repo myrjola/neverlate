@@ -15,14 +15,15 @@ from .utils import render_to_json
 import requests
 import json
 
-api_creds = "&user=neverlate&pass=neverlate"
+API_CREDS = "&user=neverlate&pass=neverlate"
+COORD_FORMAT = "&epsg_in=wgs84&epsg_out=wgs84"
 
 def frontpage(request):
     return render_to_response('frontpage.html', {'user': request.user})
 
 def get_coords(point):
     print "point was " + point
-    url = "http://api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key="+point+api_creds
+    url = "http://api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key="+point+API_CREDS+COORD_FORMAT
     r = requests.get(url)
     print r.text
     geocode = json.loads(r.text)
@@ -36,7 +37,7 @@ def getRoutePlannerJson(request):
         point2 = request.GET.get("point2", "")
         coords1 = get_coords(point1)
         coords2 = get_coords(point2)
-        routePlannerUrl = "http://api.reittiopas.fi/hsl/prod/?request=route&format=json&from="+coords1+"&to="+coords2+"&callback=?"+api_creds
+        routePlannerUrl = "http://api.reittiopas.fi/hsl/prod/?request=route&format=json&from="+coords1+"&to="+coords2+"&callback=?"+API_CREDS+COORD_FORMAT
         r = requests.get(routePlannerUrl);
         if (r.status_code == 200):
             return r.text
