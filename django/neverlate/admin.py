@@ -1,6 +1,6 @@
 
 from django.contrib import admin
-from models import UserProfile, ICalURL
+from models import UserProfile, ICalURL, TooltipMessage
 
 
 class ICalURLInline(admin.TabularInline):
@@ -12,3 +12,4 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 
 admin.site.register(UserProfile, UserProfileAdmin)
+admin.site.register(TooltipMessage)
