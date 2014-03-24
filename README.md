@@ -14,7 +14,7 @@ python manage.py runserver 0.0.0.0:8000
 Now you should now be able to navigate to localhost:8000 in the host's browser.
 You can develop the service on the guest or host, the changes are synced.
 
-If something went wrong in your envrionment you can always:
+If something went wrong in your environment you can always:
 vagrant destroy
 vagrant up
 

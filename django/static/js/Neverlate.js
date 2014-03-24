@@ -39,23 +39,41 @@ Neverlate.parseAllRoutes = function(data){
     $("head").append(s);
     window.gmap_loaded = function(){
         $(".map-canvas").each(function(index) {
-            Neverlate.parseRoute($(this)[0], toJson[0][0][index]);
+            console.log("parsing route "+ toJson[index][0] + " with index " + index);
+            Neverlate.parseRoute($(this)[0], toJson[index][0]);
         });
     }
 }
 
 Neverlate.parseRoute = function(map_canvas, leg_data){
-    //TODO what to parse from reittiopas?
-    var route_data = null; // TODO: parse route_data from leg_data
+    var route_data = leg_data; // TODO: parse route_data from leg_data
+    console.log(" Preparing data for map loading " + route_data);
     Neverlate.loadMap(map_canvas, route_data);
 }
 
 Neverlate.loadMap = function(map_canvas, route_data){
     console.log("drawed a map");
+    console.log(route_data);
     var mapOptions = {
-        center: new google.maps.LatLng(-34.397, 150.644),
+        center: new google.maps.LatLng(60.188549397729, 24.833913340551),
         zoom: 8
     };
     var map = new google.maps.Map(map_canvas, mapOptions);
-    // TODO: draw the route using route_data
+    var routeCoords = [];
+    var locs = route_data.legs[0].locs
+    for (var i = 0 ; i < locs.length; i++ ) {
+        var coords = locs[i]["coord"];
+        console.log("parsing legs in to a path");
+        console.log(coords);
+        routeCoords.push(new google.maps.LatLng(coords.y, coords.x));
+    }
+    console.log(routeCoords);
+    var routePath = new google.maps.Polyline({
+        path: routeCoords,
+        geodesic: true,
+        strokeColor: '#FF0000',
+        strokeOpacity: 1.0,
+        strokeWeight: 2
+    });
+    routePath.setMap(map);
 }
