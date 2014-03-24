@@ -37,7 +37,7 @@
                 <input type="submit" class="btn btn-default" value="Save" />
                 <input type="reset" class="btn btn-default" value="Reset" />
             </form>
-            <h2>Calendars{% tooltip calendars %}</h2>
+            <h2>Calendars {% tooltip calendars %}</h2>
             <form action="" method="POST">{% csrf_token %}
               {{ calendar_formset.management_form }}
               {% for form in calendar_formset.forms %}
