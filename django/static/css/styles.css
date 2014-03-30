@@ -105,3 +105,8 @@ body {
     transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 }
 
+.tooltip_message {
+    font-family: "Cabin", Arial, sans-serif;
+    font-size: 14px;
+    color: #ffffff;
+}
