@@ -17,12 +17,12 @@ import json
 
 API_CREDS = "&user=neverlate&pass=neverlate"
 COORD_FORMAT = "&epsg_in=wgs84&epsg_out=wgs84"
+DETAIL_LEVEL = "&detail=full"
 
 def frontpage(request):
     return render_to_response('frontpage.html', {'user': request.user})
 
 def get_coords(point):
-    print "point was " + point
     url = "http://api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key="+point+API_CREDS+COORD_FORMAT
     r = requests.get(url)
     print r.text
@@ -37,7 +37,7 @@ def getRoutePlannerJson(request):
         point2 = request.GET.get("point2", "")
         coords1 = get_coords(point1)
         coords2 = get_coords(point2)
-        routePlannerUrl = "http://api.reittiopas.fi/hsl/prod/?request=route&format=json&from="+coords1+"&to="+coords2+"&callback=?"+API_CREDS+COORD_FORMAT
+        routePlannerUrl = "http://api.reittiopas.fi/hsl/prod/?request=route&format=json&from="+coords1+"&to="+coords2+"&callback=?"+API_CREDS+COORD_FORMAT+DETAIL_LEVEL
         r = requests.get(routePlannerUrl);
         if (r.status_code == 200):
             return r.text

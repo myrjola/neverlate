@@ -1,6 +1,7 @@
-.jumboroute {
+#jumboroute {
+    -moz-border-radius: 5px;
     border-radius: 5px;
-    opacity: .7;
+    opacity: .8;
     transition: opacity .5s ease-out;
     -moz-transition: opacity .5s ease-out;
     -webkit-transition: opacity .5s ease-out;
@@ -9,10 +10,22 @@
 
 }
 .map-canvas {
-    height: 200px;
-    width: 200px;
+    overflow: hidden;
+    border-radius: 5%;
+    position: relative;
+    z-index: 99;
+    height: 500px;
+    width: 500px;
 }
-.jumboroute:hover {
+
+
+#mask iframe {
+    position: absolute;
+    border-radius: 50%;
+    top: 0; left: 0;
+    z-index: 50;
+}
+#jumboroute:hover {
     opacity: 1;
 }
 #topic {
@@ -91,3 +104,4 @@ body {
     -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
     transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 }
+
