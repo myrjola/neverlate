@@ -12,6 +12,12 @@ class UserProfile(models.Model):
         return "%s's profile" % self.user
 
 
+class LocationAlias(models.Model):
+    user = models.ForeignKey(UserProfile)
+    alias = models.CharField(max_length=200)
+    location = models.CharField(max_length=200)
+
+
 class ICalURL(models.Model):
     user = models.ForeignKey(UserProfile)
     name = models.CharField(max_length=50)
@@ -19,12 +25,6 @@ class ICalURL(models.Model):
 
     def __str__(self):
         return "%s: %s" % (self.name, self.url)
-
-
-class LocationAlias(models.Model):
-    user = models.ForeignKey(UserProfile)
-    alias = models.CharField(max_length=200)
-    location = models.CharField(max_length=200)
 
 
 class TooltipMessage(models.Model):

@@ -7,9 +7,11 @@ from django.shortcuts import render_to_response, render
 from django.forms.models import formset_factory, BaseFormSet
 import requests
 
-from forms import UserProfileForm, UserForm, ICalURLForm
+from forms import (UserProfileForm, UserForm, ICalURLForm,
+                   LocationAliasForm, get_calendar_formset,
+                   get_locationalias_formset)
 from tasks import reload_user_calendars
-from models import UserProfile, ICalURL
+from models import UserProfile, ICalURL, LocationAlias
 
 from .utils import render_to_json
 import requests
@@ -59,51 +61,52 @@ def profile(request):
     profile_form = None
     user_form = None
     calendar_formset = None
+    locationalias_formset = None
     was_saved = False
     task_id = None
 
-    class RequiredFormSet(BaseFormSet):
-        def __init__(self, *args, **kwargs):
-            super(RequiredFormSet, self).__init__(*args, **kwargs)
-            for form in self.forms:
-                form.empty_permitted = False
-
-    CalendarFormSet = formset_factory(ICalURLForm, max_num=10,
-                                      formset=RequiredFormSet)
+    CalendarFormSet = get_calendar_formset(ICalURLForm,
+                                           extra=1, can_delete=True)
+    LocationAliasFormSet = get_locationalias_formset(ICalURLForm,
+                                                     extra=1, can_delete=True)
 
     if request.user.is_authenticated():
+        user = request.user
+        profile = request.user.userprofile
+        calendar_prefix = 'calendar'
+        locationalias_prefix = 'locationalias'
         if request.method == 'POST':
             profile_form = UserProfileForm(
-                request.POST, instance=request.user.userprofile)
-            user_form = UserForm(request.POST, instance=request.user)
-            calendar_formset = CalendarFormSet(request.POST)
+                request.POST, instance=profile)
+            user_form = UserForm(request.POST, instance=user)
+            calendar_formset = CalendarFormSet(request.POST, instance=profile,
+                                               prefix=calendar_prefix)
+            locationalias_formset = LocationAliasFormSet(
+                request.POST, instance=profile, prefix=locationalias_prefix)
 
             if (profile_form.is_valid() and user_form.is_valid()):
                 profile_form.save()
                 user_form.save()
+                was_saved = True
 
-            if (calendar_formset.is_valid()):
-                # Start async task if calendars changes
-                ICalURL.objects.all().filter(
-                    user=request.user.userprofile).delete()
-                for form in calendar_formset.forms:
-                    icalurl = form.save(commit=False)
-                    icalurl.user = request.user.userprofile
-                    icalurl.save()
-                    print "saving icalurl with name", icalurl.name
-
+            if (calendar_formset.is_valid() and locationalias_formset.is_valid()):
+                calendar_formset.save()
                 task_id = reload_user_calendars.delay(request.user).task_id
                 request.session['task_id'] = task_id
-
+                locationalias_formset.save()
                 was_saved = True
+                calendar_formset = CalendarFormSet(instance=profile,
+                                                   prefix=calendar_prefix)
+                locationalias_formset = LocationAliasFormSet(
+                    instance=profile, prefix=locationalias_prefix)
+
         else:
             profile_form = UserProfileForm(instance=request.user.userprofile)
             user_form = UserForm(instance=request.user)
-            # Populate calendar_formset
-            icalurls = request.user.userprofile.icalurl_set.all()
-            initial = [{'name': icalurl.name, 'url': icalurl.url} for icalurl in icalurls]
-
-            calendar_formset = CalendarFormSet(initial=initial)
+            calendar_formset = CalendarFormSet(instance=profile,
+                                               prefix=calendar_prefix)
+            locationalias_formset = LocationAliasFormSet(
+                instance=profile, prefix=locationalias_prefix)
 
     return render(request, 'profile.html',
                   {'authenticated': request.user.is_authenticated(),
@@ -112,7 +115,8 @@ def profile(request):
                    'user_form': user_form,
                    'user_id': request.user.id,
                    'task_id': task_id,
-                   'calendar_formset': calendar_formset})
+                   'calendar_formset': calendar_formset,
+                   'locationalias_formset': locationalias_formset})
 
 
 def reload_calendars_ajax_view(request):
