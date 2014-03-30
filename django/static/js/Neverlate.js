@@ -60,7 +60,15 @@ Neverlate.loadMap = function(map_canvas, route_data){
     };
     var map = new google.maps.Map(map_canvas, mapOptions);
     var routeCoords = [];
-    var locs = route_data.legs[0].locs
+    console.log("route data is ");
+    console.log(route_data);
+    var locs=[];
+    route_data["legs"].forEach(function (leg){
+        leg.locs.forEach(function (loc){
+           locs.push(loc);
+        });
+    });
+    console.log(locs);
     for (var i = 0 ; i < locs.length; i++ ) {
         var coords = locs[i]["coord"];
         console.log("parsing legs in to a path");
