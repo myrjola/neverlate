@@ -18,7 +18,7 @@
             <p>Not logged in. Please <a href="{% url "django.contrib.auth.views.login" %}">log in</a> to see your user profile.</p>
         {% else %}
             <h1>Your User Profile</h1>
-            <p><a href="{% url "django.contrib.auth.views.password_change" %}">Change password</a></p>
+            <p><a href="{% url "django.contrib.auth.views.password_change" %}">Change password {% tooltip change_password %}</a></p>
             <form action="" method="post">
                 {% csrf_token %}
                 {% if was_saved %}
@@ -32,8 +32,23 @@
                         <script src="{% static 'js/CalendarReloadAjax.js' %}"></script>
                     {% endif %}
                 {% endif %}
-                {{ user_form.as_p }}
-                {{ profile_form.as_p }}
+
+                {% for field in user_form %}
+                    <div class="fieldWrapper">
+                        {{ field.errors }}
+                        {{ field.label_tag }} {{ field }}
+                        {% field_tooltip field %}
+                    </div>
+                {% endfor %}
+
+                {% for field in profile_form %}
+                    <div class="fieldWrapper">
+                        {{ field.errors }}
+                        {{ field.label_tag }} {{ field }}
+                        {% field_tooltip field %}
+                    </div>
+                {% endfor %}
+
                 <input type="submit" class="btn btn-default" value="Save" />
                 <input type="reset" class="btn btn-default" value="Reset" />
             </form>
