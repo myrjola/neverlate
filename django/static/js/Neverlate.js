@@ -64,17 +64,12 @@ Neverlate.loadMap = function(map_canvas, route_data){
     console.log(route_data);
     var locs=[];
     route_data["legs"].forEach(function (leg){
-        leg.locs.forEach(function (loc){
+        leg.shape.forEach(function (loc){ //locs for stops, shape for drawable route
            locs.push(loc);
         });
     });
     console.log(locs);
-    for (var i = 0 ; i < locs.length; i++ ) {
-        var coords = locs[i]["coord"];
-        console.log("parsing legs in to a path");
-        console.log(coords);
-        routeCoords.push(new google.maps.LatLng(coords.y, coords.x));
-    }
+    routeCoords = Neverlate.parseShape(locs);
     console.log(routeCoords);
     var routePath = new google.maps.Polyline({
         path: routeCoords,
@@ -84,4 +79,19 @@ Neverlate.loadMap = function(map_canvas, route_data){
         strokeWeight: 2
     });
     routePath.setMap(map);
+}
+Neverlate.parseStops = function(locs){
+    var routeCoords=[];
+    for (var i = 0 ; i < locs.length; i++ ) {
+        var coords = locs[i]["coord"];
+        routeCoords.push(new google.maps.LatLng(coords.y, coords.x));
+    }
+    return routeCoords;
+}
+Neverlate.parseShape = function(shapes){
+    var shapeCoords=[];
+    shapes.forEach(function(shape){
+        shapeCoords.push(new google.maps.LatLng(shape.y, shape.x));
+    })
+    return shapeCoords;
 }
