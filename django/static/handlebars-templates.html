@@ -10,10 +10,11 @@
         <div class="map-canvas"></div>
         </div>
         <p>Using line {{ code }} </p>
-        <p>{{duration}}</p>
-        <p>{{length}}</p>
+        <p>Route duration {{duration}}</p>
+        <p>Route length {{length}}</p>
+        <h3> Stops </h3>
         {{#each locs}}
-            <div>{{name}}</div>
+            <div class="stop">{{name}}</div>
             {{/each}}
         </div>
     {{/each}}

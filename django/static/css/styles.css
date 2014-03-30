@@ -6,8 +6,8 @@
     -moz-transition: opacity .5s ease-out;
     -webkit-transition: opacity .5s ease-out;
     -o-transition: opacity .5s ease-out;
-
-
+    top: 50%;
+    left: 50%;
 }
 .map-canvas {
     overflow: hidden;
@@ -17,13 +17,12 @@
     height: 500px;
     width: 500px;
 }
+.stop {
+    width: 500px;
+    -webkit-box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 0px 1px 6px rgba(23, 69, 88, .5);
+    margin: 5px;
 
-
-#mask iframe {
-    position: absolute;
-    border-radius: 50%;
-    top: 0; left: 0;
-    z-index: 50;
 }
 #jumboroute:hover {
     opacity: 1;

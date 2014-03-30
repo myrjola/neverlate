@@ -59,7 +59,6 @@ Neverlate.loadMap = function(map_canvas, route_data){
         zoom: 8
     };
     var map = new google.maps.Map(map_canvas, mapOptions);
-    var routeCoords = [];
     console.log("route data is ");
     console.log(route_data);
     var locs=[];
@@ -69,14 +68,14 @@ Neverlate.loadMap = function(map_canvas, route_data){
         });
     });
     console.log(locs);
-    routeCoords = Neverlate.parseShape(locs);
+    var routeCoords = Neverlate.parseShape(locs);
     console.log(routeCoords);
     var routePath = new google.maps.Polyline({
         path: routeCoords,
         geodesic: true,
         strokeColor: '#FF0000',
-        strokeOpacity: 1.0,
-        strokeWeight: 2
+        strokeOpacity: 0.8,
+        strokeWeight: 6
     });
     routePath.setMap(map);
 }
