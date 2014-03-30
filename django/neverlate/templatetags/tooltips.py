@@ -1,9 +1,22 @@
 from django import template
+from django.template import Context
 from django.core.exceptions import ObjectDoesNotExist
+from django.template.loader import get_template
 from ..models import TooltipMessage
 from ..settings import STATIC_URL
 
 register = template.Library()
+
+
+def render_tooltip(tooltip_id):
+    try:
+        context = Context({
+            "message": TooltipMessage.objects.get(pk=tooltip_id).content,
+            "icon_url": STATIC_URL + "images/tooltip-icon.png"}
+        )
+        return get_template("tooltip.html").render(context)
+    except ObjectDoesNotExist:
+        return ""
 
 
 @register.tag
@@ -20,17 +33,24 @@ class TooltipNode(template.Node):
         self.tooltip_id = tooltip_id
 
     def render(self, context):
-        try:
-            message = \
-                "<i rel=\"tooltip\" title=\"" + \
-                TooltipMessage.objects.get(pk=self.tooltip_id).content + \
-                "\"><img src=\"" + STATIC_URL + "images/tooltip-icon.png\" alt=\"tooltip\"></i>" \
-                "<script type=\"text/javascript\">" \
-                "jQuery(function(){" \
-                "$(\"[rel=tooltip]\").tooltip({ html: 'true', trigger: 'click hover'});" \
-                "});" \
-                "</script>"
+        return render_tooltip(self.tooltip_id)
 
-        except ObjectDoesNotExist:
-            message = ""
-        return message
+
+@register.tag
+def field_tooltip(parser, token):
+    try:
+        tag_name, field = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError("%r tag requires a single argument" % token.contents.split()[0])
+    return TooltipFieldNode(field)
+
+
+class TooltipFieldNode(template.Node):
+    def __init__(self, field):
+        self.field = field
+
+    def render(self, context):
+        try:
+            return render_tooltip(context[self.field].id_for_label)
+        except KeyError:
+            return ""
