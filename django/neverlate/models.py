@@ -21,6 +21,12 @@ class ICalURL(models.Model):
         return "%s: %s" % (self.name, self.url)
 
 
+class LocationAlias(models.Model):
+    user = models.ForeignKey(UserProfile)
+    alias = models.CharField(max_length=200)
+    location = models.CharField(max_length=200)
+
+
 class TooltipMessage(models.Model):
     icon_id = models.CharField(max_length=50, primary_key=True, db_index=True)
     content = models.CharField(max_length=2000)
