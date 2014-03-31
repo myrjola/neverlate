@@ -7,6 +7,8 @@ from django.shortcuts import render_to_response, render
 from django.forms.models import formset_factory, BaseFormSet
 import requests
 
+from calparser.models import CalendarEntry
+
 from forms import (UserProfileForm, UserForm, ICalURLForm,
                    LocationAliasForm, get_calendar_formset,
                    get_locationalias_formset)
@@ -22,7 +24,14 @@ COORD_FORMAT = "&epsg_in=wgs84&epsg_out=wgs84"
 DETAIL_LEVEL = "&detail=full"
 
 def frontpage(request):
-    return render_to_response('frontpage.html', {'user': request.user})
+    user = request.user
+    next_appointments = CalendarEntry.get_next_appointment_for_user(user.pk)
+    print "Next appointments: ", next_appointments
+    return render_to_response('frontpage.html',
+                              {
+                                  'user': request.user,
+                                  'next_appointments': next_appointments
+                              })
 
 def get_coords(point):
     url = "http://api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key="+point+API_CREDS+COORD_FORMAT
