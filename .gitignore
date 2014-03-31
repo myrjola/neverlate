@@ -9,5 +9,6 @@ local_settings.py
 /django/.dir-locals.el
 /django/0001_facebook_provider.yaml
 /django/db.sqlite3
+/django/celeryd.pid
 venv/
 /neverlate_ve/*

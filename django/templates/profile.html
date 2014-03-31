@@ -25,7 +25,7 @@
       {% if not authenticated %}
         <p>Not logged in. Please <a href="{% url "django.contrib.auth.views.login" %}">log in</a> to see your user profile.</p>
       {% else %}
-        <h1>Your User Profile</h1>
+        <h1>{{ user_name }}'s User Profile</h1>
         <p><a href="{% url "django.contrib.auth.views.password_change" %}">Change password {% tooltip change_password %}</a></p>
         <form action="" method="post">
           {% csrf_token %}
@@ -64,8 +64,8 @@
             <tbody>
               <thead>
                 <tr>
-                  <td>Name</td>
-                  <td>URL</td>
+                  <td>Name {% tooltip calendar_name %}</td>
+                  <td>URL {% tooltip calendar_url %}</td>
                 </tr>
               </thead>
               {% for form in calendar_formset.forms %}
@@ -88,8 +88,8 @@
           <table id="locationAliasFormsetTable" border="0" cellpadding="0">
             <tbody>
               <tr>
-                <td>Alias</td>
-                <td>Location</td>
+                <td>Alias {% tooltip locationalias_alias %}</td>
+                <td>Location {% tooltip locationalias_location %}</td>
               </tr>
               {% for form in locationalias_formset.forms %}
                 {% for hidden in form.hidden_fields %}

@@ -1,11 +1,17 @@
 import json
 
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, render
 from django.forms.models import formset_factory, BaseFormSet
 import requests
+from allaccess.views import OAuthRedirect, OAuthCallback
+from allaccess.compat import get_user_model
+import base64
+import hashlib
+from django.utils.encoding import force_text, smart_bytes
 
 from forms import (UserProfileForm, UserForm, ICalURLForm,
                    LocationAliasForm, get_calendar_formset,
@@ -113,6 +119,7 @@ def profile(request):
                    'was_saved': was_saved,
                    'profile_form': profile_form,
                    'user_form': user_form,
+                   'user_name': request.user.get_username(),
                    'user_id': request.user.id,
                    'task_id': task_id,
                    'calendar_formset': calendar_formset,
@@ -139,3 +146,35 @@ def reload_calendars_ajax_view(request):
         ret = {'error': 'Cannot find async task.'}
         return HttpResponse(json.dumps(ret))
     return HttpResponse(json.dumps(ret))
+
+
+class LoginProviderCallback(OAuthCallback):
+
+    @staticmethod
+    def generate_username(access):
+        digest = hashlib.sha1(smart_bytes(access)).digest()
+        return force_text(base64.urlsafe_b64encode(digest)).replace('=', '')
+
+    def get_or_create_user(self, provider, access, info):
+
+        # TODO: get user address from facebook
+        # TODO: get ical url from facebook
+        # TODO: get user email
+
+        username = info.get('username')
+        if username is None:
+            username = self.generate_username(access)
+        else:
+            max_length = User._meta.get_field('username').max_length
+            username = username[0:max_length]
+
+        if User.objects.filter(username=username).count() > 0:
+            username = self.generate_username(access)
+
+        user = get_user_model()
+        kwargs = {
+            user.USERNAME_FIELD: username,
+            'email': '',
+            'password': None
+        }
+        return User.objects.create_user(**kwargs)

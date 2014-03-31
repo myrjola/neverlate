@@ -1,7 +1,8 @@
 #from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls import patterns, include, url
-
 from django.contrib import admin
+from views import LoginProviderCallback
+from allaccess.views import OAuthRedirect
 
 admin.autodiscover()
 
@@ -12,7 +13,9 @@ urlpatterns = patterns('',
 
                        url(r'^admin/', include(admin.site.urls)),
                        url(r'^tasks/', include('djcelery.urls')),
-                       url(r'^accounts/', include("allaccess.urls")),
+                       url(r'^accounts/login/(?P<provider>(\w|-)+)/$', OAuthRedirect.as_view(), name='allaccess-login'),
+                       url(r'^accounts/callback/(?P<provider>(\w|-)+)/$', LoginProviderCallback.as_view(),
+                           name='allaccess-callback'),
                        url(r'^$', 'neverlate.views.frontpage', ),
                        url(r'^routeplanner/*.', 'neverlate.views.getRoutePlannerJson', ),
                        url(r'^register/$', 'neverlate.views.register', name="Neverlate Registration"),
