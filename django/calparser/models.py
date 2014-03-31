@@ -20,6 +20,6 @@ class CalendarEntry(models.Model):
     @staticmethod
     def get_next_appointment_for_user(user_pk):
         """Get the next three appointments for user with user.pk == user_pk"""
-        return CalendarEntry.objects.filter(
+        return CalendarEntry.objects.order_by('start_time').filter(
             user__pk=user_pk, start_time__gte=datetime.datetime.now()
         ).all()[:3]
