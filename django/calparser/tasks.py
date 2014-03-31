@@ -4,8 +4,9 @@ import urllib2
 
 from datetime import datetime, timedelta
 import pytz
-from icalendar import Calendar
+from icalendar import Calendar, Event
 from celery import shared_task
+from dateutil.rrule import rrulestr
 
 from calparser.models import CalendarEntry
 
@@ -24,10 +25,31 @@ def parse_ical_from_url(url, user):
     """
     response = urllib2.urlopen(url)
     calendar = Calendar.from_ical(response.read())
-    eventlist = [component for component in calendar.walk()
-                 if component.name == 'VEVENT']
-    # Relevant events start from today to 7 days ahead
+    eventlist = [component for component in calendar.walk('vevent')]
+
     now = datetime.now(pytz.utc)
+    # Generate more events from recurrences
+    recurrences = []
+    for event in eventlist:
+        rrules = event['rrule']
+
+        if rrules:
+            duration = event[DTEND].dt - event[DTSTART].dt
+            start = event[DTSTART].dt
+            for recurrence_datetime in (rrulestr(
+                    rrules.to_ical(), dtstart=start).between(
+                        now, now + timedelta(days=7))):
+                recurrence = Event()
+                recurrence[SUMMARY] = event[SUMMARY]
+                recurrence[LOCATION] = event[LOCATION]
+                recurrence[STATUS] = 'CONFIRMED'
+                recurrence.add('dtstart', recurrence_datetime)
+                recurrence.add('dtend', recurrence_datetime + duration)
+                recurrences.append(recurrence)
+
+    eventlist += recurrences
+
+    # Relevant events start from today to 7 days ahead
     relevanteventlist = [event for event in eventlist
                          if (type(event[DTSTART].dt) is datetime and
                              event[DTSTART].dt > now and
