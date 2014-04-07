@@ -38,6 +38,10 @@ CELERYBEAT_SCHEDULE = {
 }
 CELERY_TIMEZONE = 'UTC'
 
+FIXTURE_DIRS = (
+    os.path.join(BASE_DIR, "fixtures"),
+)
+
 # Application definition
 
 INSTALLED_APPS = (
