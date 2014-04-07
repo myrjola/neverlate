@@ -31,7 +31,9 @@ def parse_ical_from_url(url, user):
     # Generate more events from recurrences
     recurrences = []
     for event in eventlist:
-        rrules = event['rrule']
+        rrules = None
+        if 'rrule' in event:
+            rrules = event['rrule']
 
         if rrules:
             duration = event[DTEND].dt - event[DTSTART].dt
