@@ -157,6 +157,14 @@ def reload_calendars_ajax_view(request):
     return HttpResponse(json.dumps(ret))
 
 
+class LoginProviderRedirect(OAuthRedirect):
+    def get_additional_parameters(self, provider):
+        if provider.name == "facebook":
+            return {'scope': 'basic_info,email,user_events,user_location'}
+        else:
+            return {}
+
+
 class LoginProviderCallback(OAuthCallback):
 
     @staticmethod
@@ -168,7 +176,6 @@ class LoginProviderCallback(OAuthCallback):
 
         # TODO: get user address from facebook
         # TODO: get ical url from facebook
-        # TODO: get user email
 
         username = info.get('username')
         if username is None:
@@ -180,10 +187,12 @@ class LoginProviderCallback(OAuthCallback):
         if User.objects.filter(username=username).count() > 0:
             username = self.generate_username(access)
 
+        email = info.get('email')
+
         user = get_user_model()
         kwargs = {
             user.USERNAME_FIELD: username,
-            'email': '',
+            'email': email,
             'password': None
         }
         return User.objects.create_user(**kwargs)
