@@ -23,8 +23,15 @@ def parse_ical_from_url(url, user):
     Creates CalendarEntry-instances for each relevant VEVENT
     and attaches them to the given user
     """
-    response = urllib2.urlopen(url)
+    response = None
+    try:
+        response = urllib2.urlopen(url)
+    except urllib2.URLError:
+        # Try to replace webcal protocol with http
+        response = urllib2.urlopen(url.replace("webcal", "http", 1))
+
     calendar = Calendar.from_ical(response.read())
+
     eventlist = [component for component in calendar.walk('vevent')]
 
     now = datetime.now(pytz.utc)
