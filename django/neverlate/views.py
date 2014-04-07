@@ -174,9 +174,6 @@ class LoginProviderCallback(OAuthCallback):
 
     def get_or_create_user(self, provider, access, info):
 
-        # TODO: get user address from facebook
-        # TODO: get ical url from facebook
-
         username = info.get('username')
         if username is None:
             username = self.generate_username(access)
