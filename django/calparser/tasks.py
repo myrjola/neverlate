@@ -56,7 +56,10 @@ def parse_ical_from_url(url, user):
                          if (type(event[DTSTART].dt) is datetime and
                              event[DTSTART].dt > now and
                              event[DTSTART].dt < now + timedelta(days=7) and
-                             event[STATUS] == 'CONFIRMED')]
+                             event[STATUS] == 'CONFIRMED' and not
+                             # Facebook participation filtering
+                             ('PARTSTAT' in event and
+                              event['PARTSTAT'] not in ['ACCEPTED', 'MAYBE']))]
 
     # Persist events to database
     for event in relevanteventlist:
