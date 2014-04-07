@@ -38,17 +38,12 @@ Neverlate.parseAllRoutes = function(data){
     s.src  = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAoHieetxNcdqJ4PDij87fi2KH8tOhMK2Y&sensor=true&callback=gmap_loaded";
     $("head").append(s);
     window.gmap_loaded = function(){
+        // TODO: load a map only for the currently selected route
         $(".map-canvas").each(function(index) {
-            console.log("parsing route "+ toJson[index][0] + " with index " + index);
-            Neverlate.parseRoute($(this)[0], toJson[index][0]);
+            console.log("parsing route "+ toJson[0][0] + " with index " + 0);
+            Neverlate.loadMap($(this)[0], toJson[0][0]);
         });
     }
-}
-
-Neverlate.parseRoute = function(map_canvas, leg_data){
-    var route_data = leg_data; // TODO: parse route_data from leg_data
-    console.log(" Preparing data for map loading " + route_data);
-    Neverlate.loadMap(map_canvas, route_data);
 }
 
 Neverlate.loadMap = function(map_canvas, route_data){
@@ -61,23 +56,24 @@ Neverlate.loadMap = function(map_canvas, route_data){
     var map = new google.maps.Map(map_canvas, mapOptions);
     console.log("route data is ");
     console.log(route_data);
-    var locs=[];
-    route_data["legs"].forEach(function (leg){
+    route_data["legs"].forEach(function (leg,index){
+        var route_colors = ['#FF0000', '#00FF00', '#0000FF']
+        var locs=[];
         leg.shape.forEach(function (loc){ //locs for stops, shape for drawable route
            locs.push(loc);
         });
+        var routeCoords = Neverlate.parseShape(locs);
+        console.log(routeCoords);
+        var routePath = new google.maps.Polyline({
+            path: routeCoords,
+            geodesic: true,
+            strokeColor: route_colors[index % route_colors.length],
+            strokeOpacity: 0.8,
+            strokeWeight: 6
+        });
+        routePath.setMap(map);
     });
-    console.log(locs);
-    var routeCoords = Neverlate.parseShape(locs);
-    console.log(routeCoords);
-    var routePath = new google.maps.Polyline({
-        path: routeCoords,
-        geodesic: true,
-        strokeColor: '#FF0000',
-        strokeOpacity: 0.8,
-        strokeWeight: 6
-    });
-    routePath.setMap(map);
+
 }
 Neverlate.parseStops = function(locs){
     var routeCoords=[];
