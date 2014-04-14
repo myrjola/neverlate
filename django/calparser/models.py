@@ -23,3 +23,9 @@ class CalendarEntry(models.Model):
         return CalendarEntry.objects.order_by('start_time').filter(
             user__pk=user_pk, start_time__gte=datetime.datetime.now()
         ).all()[:3]
+
+    @staticmethod
+    def get_all_appointments_for_user(user_pk):
+        """Get all the user's appointments sorted by start_time"""
+        return CalendarEntry.objects.order_by('start_time').filter(
+            user__pk=user_pk).all()

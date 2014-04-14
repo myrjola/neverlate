@@ -11,6 +11,7 @@ from allaccess.views import OAuthRedirect, OAuthCallback
 from allaccess.compat import get_user_model
 import base64
 import hashlib
+from django.core import serializers
 from django.utils.encoding import force_text, smart_bytes
 
 from calparser.models import CalendarEntry
@@ -58,6 +59,16 @@ def getRoutePlannerJson(request):
         r = requests.get(routePlannerUrl);
         if (r.status_code == 200):
             return r.text
+
+
+@render_to_json()
+def getAppointmentsForUser(request):
+    if request.method == "GET" and request.user.is_authenticated():
+        user = request.user
+        appointments = CalendarEntry.get_all_appointments_for_user(user.pk)
+        json = serializers.serialize("json", appointments)
+        print json
+        return json
 
 
 def register(request):

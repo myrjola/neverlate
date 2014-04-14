@@ -23,15 +23,24 @@ def parse_ical_from_url(url, user):
     Creates CalendarEntry-instances for each relevant VEVENT
     and attaches them to the given user
     """
-    response = urllib2.urlopen(url)
+    response = None
+    try:
+        response = urllib2.urlopen(url)
+    except urllib2.URLError:
+        # Try to replace webcal protocol with http
+        response = urllib2.urlopen(url.replace("webcal", "http", 1))
+
     calendar = Calendar.from_ical(response.read())
+
     eventlist = [component for component in calendar.walk('vevent')]
 
     now = datetime.now(pytz.utc)
     # Generate more events from recurrences
     recurrences = []
     for event in eventlist:
-        rrules = event['rrule']
+        rrules = None
+        if 'rrule' in event:
+            rrules = event['rrule']
 
         if rrules:
             duration = event[DTEND].dt - event[DTSTART].dt
@@ -54,7 +63,10 @@ def parse_ical_from_url(url, user):
                          if (type(event[DTSTART].dt) is datetime and
                              event[DTSTART].dt > now and
                              event[DTSTART].dt < now + timedelta(days=7) and
-                             event[STATUS] == 'CONFIRMED')]
+                             event[STATUS] == 'CONFIRMED' and not
+                             # Facebook participation filtering
+                             ('PARTSTAT' in event and
+                              event['PARTSTAT'] not in ['ACCEPTED', 'MAYBE']))]
 
     # Persist events to database
     for event in relevanteventlist:
