@@ -24,8 +24,20 @@ Neverlate.loadRoutes = function(point1,point2) {
         });
     });
 }
+Neverlate.testJsonp = function(){
+    $.get(
+    "http://www.corsproxy.com/api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key=otaniemi&user=neverlate&pass=neverlate&epsg_in=wgs84&epsg_out=wgs84",
+    function(response) {
+        console.log("GOT RESPONSE FRON REITTIOPAS");
+        console.log(response);
+
+    });
+}
+
 
 Neverlate.parseAllRoutes = function(data){
+    Neverlate.testJsonp();
+
     console.log(JSON.parse(data));
     var toJson = JSON.parse(data);
     var source = Neverlate.templates.route_front;
