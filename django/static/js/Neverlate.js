@@ -23,7 +23,7 @@ Neverlate.loadRoutes = function(point1,point2) {
             Neverlate.parseAllRoutes(result);
         });
     });
-}
+};
 
 Neverlate.parseAllRoutes = function(data){
     console.log(JSON.parse(data));
@@ -44,7 +44,26 @@ Neverlate.parseAllRoutes = function(data){
             Neverlate.loadMap($(this)[0], toJson[0][0]);
         });
     }
-}
+};
+
+Neverlate.getLegColor = function(type) {
+    switch(type) {
+        case 'walk':
+            return '#1E74FC';
+        case '1':case '3':case '4':case '5':case '8':case '21':case '22':case '23':case '24':case '25':case '36':case '39': // bus
+            return '#193695';
+        case '2': // tram
+            return '#00AC67';
+        case '6': // metro
+            return '#FB6500';
+        case '7': // ferry
+            return '#00AEE7';
+        case '12': // commuter train
+            return '#2CBE2C';
+        default: // unknown
+            return '#000000'
+    }
+};
 
 Neverlate.loadMap = function(map_canvas, route_data){
     console.log("drawed a map");
@@ -57,7 +76,6 @@ Neverlate.loadMap = function(map_canvas, route_data){
     console.log("route data is ");
     console.log(route_data);
     route_data["legs"].forEach(function (leg,index){
-        var route_colors = ['#FF0000', '#00FF00', '#0000FF']
         var locs=[];
         leg.shape.forEach(function (loc){ //locs for stops, shape for drawable route
            locs.push(loc);
@@ -67,14 +85,14 @@ Neverlate.loadMap = function(map_canvas, route_data){
         var routePath = new google.maps.Polyline({
             path: routeCoords,
             geodesic: true,
-            strokeColor: route_colors[index % route_colors.length],
+            strokeColor: Neverlate.getLegColor(leg.type),
             strokeOpacity: 0.8,
             strokeWeight: 6
         });
         routePath.setMap(map);
     });
 
-}
+};
 Neverlate.parseStops = function(locs){
     var routeCoords=[];
     for (var i = 0 ; i < locs.length; i++ ) {
@@ -82,11 +100,11 @@ Neverlate.parseStops = function(locs){
         routeCoords.push(new google.maps.LatLng(coords.y, coords.x));
     }
     return routeCoords;
-}
+};
 Neverlate.parseShape = function(shapes){
     var shapeCoords=[];
     shapes.forEach(function(shape){
         shapeCoords.push(new google.maps.LatLng(shape.y, shape.x));
-    })
+    });
     return shapeCoords;
-}
+};
