@@ -25,6 +25,12 @@ Neverlate.loadRoutes = function(point1,point2) {
     });
 };
 
+Neverlate.loadAppointments = function() {
+    console.log("Loading user appointments");
+    var url= "/appointments";
+    return $.getJSON(url);
+}
+
 Neverlate.parseAllRoutes = function(data){
     console.log(JSON.parse(data));
     var toJson = JSON.parse(data);
