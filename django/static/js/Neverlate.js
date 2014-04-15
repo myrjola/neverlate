@@ -1,6 +1,10 @@
 
 window.Neverlate = {
     templates: {},
+    API_CREDS: "&user=neverlate&pass=neverlate",
+    COORD_FORMAT: "&epsg_in=wgs84&epsg_out=wgs84",
+    DETAIL_LEVEL: "&detail=full",
+    CORS: "http://www.corsproxy.com/"
 };
 
 //Load handlebar templates
@@ -14,16 +18,46 @@ $(function () {
         }
     );
 });
+Neverlate.getRoute = function (point1coords, point2coords) {
+    var N = Neverlate; // faste to type
+    var queryOptions = N.API_CREDS +N.COORD_FORMAT+N.DETAIL_LEVEL;
+    $.get(
+            url = N.CORS+"api.reittiopas.fi/hsl/prod/?request=route&format=json&from="+point1coords+"&to="+point2coords+"&callback=?"+queryOptions,
+            succes = function(response) {
+            console.log("GOT ROUTE FRON REITTIOPAS");
+            Neverlate.parseAllRoutes(response);
+        });
+    };
 
 Neverlate.loadRoutes = function(point1,point2) {
+    var point1json = null;
+    var point2json = null;
+
     $(document).ready(function () {
-        console.log("loading data fron routeplanner");
-        var url= "/routeplanner?point1="+point1+"&point2="+point2;
-        $.getJSON(url, function(result){
-            Neverlate.parseAllRoutes(result);
+        var N = Neverlate; // faste to type
+        var queryOptions = N.API_CREDS +N.COORD_FORMAT+N.DETAIL_LEVEL;
+        console.log("loading geocode")
+        $.get(
+            url = N.CORS+"api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key="+point1+queryOptions,
+            succes = function(response) {
+            console.log("GOT RESPONSE FRON REITTIOPAS");
+            point1json = JSON.parse(response);
+            if (point2json != null) { // this in made in pieces because either call can finish first
+                Neverlate.getRoute(point1json[0]["coords"],point2json[0]["coords"]);
+            }
         });
-    });
-};
+        $.get(
+            url = N.CORS + "api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key=" + point2 + queryOptions,
+                success = function (response) {
+                    console.log("GOT RESPONSE FRON REITTIOPAS");
+                    point2json = JSON.parse(response);
+                    if (point1json != null) {// this in made in pieces because either call can finish first
+                        Neverlate.getRoute(point1json[0]["coords"], point2json[0]["coords"]); // send only coordinates forward
+                    }
+        })
+    })
+}
+
 
 Neverlate.loadAppointments = function() {
     console.log("Loading user appointments");
@@ -32,12 +66,12 @@ Neverlate.loadAppointments = function() {
 }
 Neverlate.testJsonp = function(){
     $.get(
-    "http://www.corsproxy.com/api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key=otaniemi&user=neverlate&pass=neverlate&epsg_in=wgs84&epsg_out=wgs84",
-    function(response) {
-        console.log("GOT RESPONSE FRON REITTIOPAS");
-        console.log(response);
+        "http://www.corsproxy.com/api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key=otaniemi&user=neverlate&pass=neverlate&epsg_in=wgs84&epsg_out=wgs84",
+        function(response) {
+            console.log("GOT RESPONSE FRON REITTIOPAS");
+            console.log(response);
 
-    });
+        });
 }
 
 
@@ -69,7 +103,7 @@ Neverlate.getLegColor = function(type) {
         case 'walk':
             return '#1E74FC';
         case '1':case '3':case '4':case '5':case '8':case '21':case '22':case '23':case '24':case '25':case '36':case '39': // bus
-            return '#193695';
+        return '#193695';
         case '2': // tram
             return '#00AC67';
         case '6': // metro
@@ -96,7 +130,7 @@ Neverlate.loadMap = function(map_canvas, route_data){
     route_data["legs"].forEach(function (leg,index){
         var locs=[];
         leg.shape.forEach(function (loc){ //locs for stops, shape for drawable route
-           locs.push(loc);
+            locs.push(loc);
         });
         var routeCoords = Neverlate.parseShape(locs);
         console.log(routeCoords);
