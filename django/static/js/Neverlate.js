@@ -64,21 +64,8 @@ Neverlate.loadAppointments = function() {
     var url= "/appointments";
     return $.getJSON(url);
 }
-Neverlate.testJsonp = function(){
-    $.get(
-        "http://www.corsproxy.com/api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key=otaniemi&user=neverlate&pass=neverlate&epsg_in=wgs84&epsg_out=wgs84",
-        function(response) {
-            console.log("GOT RESPONSE FRON REITTIOPAS");
-            console.log(response);
-
-        });
-}
-
 
 Neverlate.parseAllRoutes = function(data){
-    Neverlate.testJsonp();
-
-    console.log(JSON.parse(data));
     var toJson = JSON.parse(data);
     var source = Neverlate.templates.route_front;
     var template = Handlebars.compile(source);
@@ -93,7 +80,7 @@ Neverlate.parseAllRoutes = function(data){
         // TODO: load a map only for the currently selected route
         $(".map-canvas").each(function(index) {
             console.log("parsing route "+ toJson[0][0] + " with index " + 0);
-            Neverlate.loadMap($(this)[0], toJson[0][0]);
+            Neverlate.loadMap($(this)[0], toJson[0][0]); //todo pass route length
         });
     }
 };
@@ -122,7 +109,7 @@ Neverlate.loadMap = function(map_canvas, route_data){
     console.log(route_data);
     var mapOptions = {
         center: new google.maps.LatLng(60.188549397729, 24.833913340551),
-        zoom: 8
+        zoom: 10 // todo change zoom level depending on the length of route
     };
     var map = new google.maps.Map(map_canvas, mapOptions);
     console.log("route data is ");

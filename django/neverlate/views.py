@@ -5,8 +5,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, render
-from django.forms.models import formset_factory, BaseFormSet
-import requests
 from allaccess.views import OAuthRedirect, OAuthCallback
 from allaccess.compat import get_user_model
 import base64
@@ -39,26 +37,6 @@ def frontpage(request):
                                   'user': request.user,
                                   'next_appointments': next_appointments
                               })
-
-def get_coords(point):
-    url = "http://api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key="+point+API_CREDS+COORD_FORMAT
-    r = requests.get(url)
-    print r.text
-    geocode = json.loads(r.text)
-    print geocode[0]["coords"]
-    return geocode[0]["coords"]
-
-@render_to_json()
-def getRoutePlannerJson(request):
-    if request.method == "GET":
-        point1 = request.GET.get("point1", "")
-        point2 = request.GET.get("point2", "")
-        coords1 = get_coords(point1)
-        coords2 = get_coords(point2)
-        routePlannerUrl = "http://api.reittiopas.fi/hsl/prod/?request=route&format=json&from="+coords1+"&to="+coords2+"&callback=?"+API_CREDS+COORD_FORMAT+DETAIL_LEVEL
-        r = requests.get(routePlannerUrl);
-        if (r.status_code == 200):
-            return r.text
 
 
 @render_to_json()
