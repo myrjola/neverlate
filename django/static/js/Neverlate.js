@@ -79,8 +79,7 @@ Neverlate.parseAllRoutes = function(data){
     window.gmap_loaded = function(){
         // TODO: load a map only for the currently selected route
         $(".map-canvas").each(function(index) {
-            console.log("parsing route "+ toJson[0][0] + " with index " + 0);
-            Neverlate.loadMap($(this)[0], toJson[0][0]); //todo pass route length
+            Neverlate.loadMap($(this)[0], toJson[0][0]);
         });
     }
 };
@@ -103,13 +102,19 @@ Neverlate.getLegColor = function(type) {
             return '#000000'
     }
 };
+Neverlate.mapZoom = function(len) {
+    if (len > 10000) {
+        return 11;
+    }
+    else return 10;
+}
 
 Neverlate.loadMap = function(map_canvas, route_data){
     console.log("drawed a map");
     console.log(route_data);
     var mapOptions = {
         center: new google.maps.LatLng(60.188549397729, 24.833913340551),
-        zoom: 11 // todo change zoom level depending on the length of route
+        zoom: Neverlate.mapZoom(route_data["length"]) // todo change zoom level depending on the length of route
     };
     var map = new google.maps.Map(map_canvas, mapOptions);
     console.log("route data is ");
