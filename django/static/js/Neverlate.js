@@ -109,7 +109,7 @@ Neverlate.loadMap = function(map_canvas, route_data){
     console.log(route_data);
     var mapOptions = {
         center: new google.maps.LatLng(60.188549397729, 24.833913340551),
-        zoom: 10 // todo change zoom level depending on the length of route
+        zoom: 11 // todo change zoom level depending on the length of route
     };
     var map = new google.maps.Map(map_canvas, mapOptions);
     console.log("route data is ");
