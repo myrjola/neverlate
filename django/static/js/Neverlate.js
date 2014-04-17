@@ -117,8 +117,6 @@ Neverlate.loadMap = function(map_canvas, route_data){
         zoom: Neverlate.mapZoom(route_data["length"]) // todo change zoom level depending on the length of route
     };
     var map = new google.maps.Map(map_canvas, mapOptions);
-    console.log("route data is ");
-    console.log(route_data);
     route_data["legs"].forEach(function (leg,index){
         var locs=[];
         leg.shape.forEach(function (loc){ //locs for stops, shape for drawable route
