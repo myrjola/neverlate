@@ -62,10 +62,11 @@ Neverlate.loadRoutes = function(point1,point2) {
 Neverlate.loadAppointments = function() {
     console.log("Loading user appointments");
     var url= "/appointments";
-    return $.getJSON(url);
+    return $.get(url);
 }
 
 Neverlate.parseAllRoutes = function(data){
+    console.log(Neverlate.loadAppointments());
     var toJson = JSON.parse(data);
     var source = Neverlate.templates.route_front;
     var template = Handlebars.compile(source);
