@@ -109,3 +109,9 @@ body {
     font-size: 14px;
     color: #ffffff;
 }
+
+.infowindow {
+    font-family: "Cabin", Arial, sans-serif;
+    font-size: 14px;
+    color: #000000;
+}

@@ -125,8 +125,8 @@ Neverlate.drawLeg = function(leg, map){
     });
     routePath.setMap(map);
 };
+
 Neverlate.drawStop = function(precedingLeg, followingLeg, map){
-    // TODO: implement
     var loc;
     var icon;
     if (followingLeg != null) {
@@ -137,11 +137,12 @@ Neverlate.drawStop = function(precedingLeg, followingLeg, map){
         icon = Neverlate.getEndIcon();
     }
 
-    new google.maps.Marker({
+    var marker = new google.maps.Marker({
         position: loc,
         map: map,
         icon: icon
     });
+    Neverlate.addInfoWindow(marker, 'This is a marker.', map);
 };
 Neverlate.getLegColor = function(type) {
     switch(type) {
@@ -180,4 +181,21 @@ Neverlate.parseShape = function(shapes){
         shapeCoords.push(new google.maps.LatLng(shape.y, shape.x));
     });
     return shapeCoords;
+};
+
+var infowindow; // one Google Maps infoWindow instance
+var infowindowtrigger; // the object that the infowindow is currently opened for (e.g. a marker)
+Neverlate.addInfoWindow = function(trigger, content, map){
+    if (!infowindow) infowindow = new google.maps.InfoWindow();
+    google.maps.event.addListener(trigger, 'click', function() {
+        infowindow.close();
+        // if the same marker was clicked again, just close the window
+        if (infowindowtrigger === trigger) {
+            infowindowtrigger = null;
+        } else {
+            infowindowtrigger = trigger;
+            infowindow.setContent('<span class="infowindow">' + content + '</span>');
+            infowindow.open(map, trigger);
+        }
+    });
 };
