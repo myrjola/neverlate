@@ -85,12 +85,66 @@ Neverlate.parseAllRoutes = function(data){
     }
 };
 
+Neverlate.mapZoom = function(len) {
+    if (len > 10000) {
+        return 11;
+    }
+    else return 10;
+}
+Neverlate.loadMap = function(map_canvas, route_data){
+    console.log("drawed a map");
+    console.log(route_data);
+    var mapOptions = {
+        center: new google.maps.LatLng(60.188549397729, 24.833913340551),
+        zoom: Neverlate.mapZoom(route_data["length"]) // todo change zoom level depending on the length of route
+    };
+    var map = new google.maps.Map(map_canvas, mapOptions);
+
+    route_data["legs"].forEach(function (leg){
+        Neverlate.drawLeg(leg, map);
+    });
+
+    Neverlate.drawStop(null, route_data["legs"][0], map); // the beginning
+    for (var i = 0; i < route_data["legs"].length-1; ++i)
+        Neverlate.drawStop(route_data["legs"][i], route_data["legs"][i+1], map); // the middle
+    Neverlate.drawStop(route_data["legs"][route_data["legs"].length-1], null, map); // the end
+};
+Neverlate.drawLeg = function(leg, map){
+    var locs=[];
+    leg.shape.forEach(function (loc){ //locs for stops, shape for drawable route
+           locs.push(loc);
+    });
+    var routeCoords = Neverlate.parseShape(locs);
+    console.log(routeCoords);
+    var routePath = new google.maps.Polyline({
+        path: routeCoords,
+        geodesic: true,
+        strokeColor: Neverlate.getLegColor(leg.type),
+        strokeOpacity: 0.8,
+        strokeWeight: 6
+    });
+    routePath.setMap(map);
+};
+Neverlate.drawStop = function(precedingLeg, followingLeg, map){
+    // TODO: implement
+    var loc;
+    if (followingLeg != null) {
+        loc = new google.maps.LatLng(followingLeg.locs[0].coord.y, followingLeg.locs[0].coord.x);
+    } else { // this is the end
+        loc = new google.maps.LatLng(precedingLeg.locs[precedingLeg.locs.length-1].coord.y, precedingLeg.locs[precedingLeg.locs.length-1].coord.x);
+    }
+
+    new google.maps.Marker({
+        position: loc,
+        map: map
+    });
+};
 Neverlate.getLegColor = function(type) {
     switch(type) {
         case 'walk':
             return '#1E74FC';
         case '1':case '3':case '4':case '5':case '8':case '21':case '22':case '23':case '24':case '25':case '36':case '39': // bus
-        return '#193695';
+            return '#193695';
         case '2': // tram
             return '#00AC67';
         case '6': // metro
@@ -102,47 +156,6 @@ Neverlate.getLegColor = function(type) {
         default: // unknown
             return '#000000'
     }
-};
-Neverlate.mapZoom = function(len) {
-    if (len > 10000) {
-        return 11;
-    }
-    else return 10;
-}
-
-Neverlate.loadMap = function(map_canvas, route_data){
-    console.log("drawed a map");
-    console.log(route_data);
-    var mapOptions = {
-        center: new google.maps.LatLng(60.188549397729, 24.833913340551),
-        zoom: Neverlate.mapZoom(route_data["length"]) // todo change zoom level depending on the length of route
-    };
-    var map = new google.maps.Map(map_canvas, mapOptions);
-    route_data["legs"].forEach(function (leg,index){
-        var locs=[];
-        leg.shape.forEach(function (loc){ //locs for stops, shape for drawable route
-            locs.push(loc);
-        });
-        var routeCoords = Neverlate.parseShape(locs);
-        console.log(routeCoords);
-        var routePath = new google.maps.Polyline({
-            path: routeCoords,
-            geodesic: true,
-            strokeColor: Neverlate.getLegColor(leg.type),
-            strokeOpacity: 0.8,
-            strokeWeight: 6
-        });
-        routePath.setMap(map);
-    });
-
-};
-Neverlate.parseStops = function(locs){
-    var routeCoords=[];
-    for (var i = 0 ; i < locs.length; i++ ) {
-        var coords = locs[i]["coord"];
-        routeCoords.push(new google.maps.LatLng(coords.y, coords.x));
-    }
-    return routeCoords;
 };
 Neverlate.parseShape = function(shapes){
     var shapeCoords=[];
