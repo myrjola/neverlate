@@ -128,15 +128,19 @@ Neverlate.drawLeg = function(leg, map){
 Neverlate.drawStop = function(precedingLeg, followingLeg, map){
     // TODO: implement
     var loc;
+    var icon;
     if (followingLeg != null) {
         loc = new google.maps.LatLng(followingLeg.locs[0].coord.y, followingLeg.locs[0].coord.x);
+        icon = Neverlate.getLegIcon(followingLeg.type);
     } else { // this is the end
         loc = new google.maps.LatLng(precedingLeg.locs[precedingLeg.locs.length-1].coord.y, precedingLeg.locs[precedingLeg.locs.length-1].coord.x);
+        icon = Neverlate.getEndIcon();
     }
 
     new google.maps.Marker({
         position: loc,
-        map: map
+        map: map,
+        icon: icon
     });
 };
 Neverlate.getLegColor = function(type) {
@@ -156,6 +160,19 @@ Neverlate.getLegColor = function(type) {
         default: // unknown
             return '#000000'
     }
+};
+Neverlate.getLegIcon = function(type) {
+    var name;
+    // TODO: add icons for other transportation types
+    if (type == 'walk') {
+        name = 'walk.png';
+    } else {
+        name = 'bus.png';
+    }
+    return 'static/images/' + name;
+};
+Neverlate.getEndIcon = function() {
+    return 'static/images/end.png';
 };
 Neverlate.parseShape = function(shapes){
     var shapeCoords=[];
