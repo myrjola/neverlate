@@ -12,11 +12,17 @@
     top: 50%;
     left: 50%;
 }
+.map-wrapper {
+    height: 80vh;
+    width: 70vw;
+}
 .map-canvas {
     overflow: hidden;
     border-radius: 5%;
     position: relative;
     z-index: 99;
+    height: 100%;
+    width: 100%;
 }
 .stop {
     width: 500px;
