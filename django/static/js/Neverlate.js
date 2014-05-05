@@ -204,9 +204,15 @@ Neverlate.drawNextTransfer = function(){
     $.get(
         url = 'appointments',
         success = function(response) {
-        var appointments = JSON.parse(response);
-        var from = appointments[0]["fields"]["location"];
-        var to = appointments[1]["fields"]["location"];
-        Neverlate.getRoute(from, to);
-    });
+            var appointments = JSON.parse(response);
+            console.log(appointments)
+            appointments = appointments.filter(function (appointment){
+                return new Date() < new Date(appointment["fields"]["start_time"])
+            })
+            console.log(appointments)
+
+            var from = appointments[0]["fields"]["location"];
+            var to = appointments[1]["fields"]["location"];
+            Neverlate.loadRoutes(from, to);
+        });
 };
