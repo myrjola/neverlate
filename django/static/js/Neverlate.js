@@ -142,7 +142,7 @@ Neverlate.drawStop = function(precedingLeg, followingLeg, map){
         map: map,
         icon: icon
     });
-    Neverlate.addInfoWindow(marker, 'This is a marker.', map);
+    Neverlate.addInfoWindow(marker, Neverlate.formatStopInfo(precedingLeg, followingLeg), map);
 };
 Neverlate.getLegColor = function(type) {
     switch(type) {
@@ -182,6 +182,33 @@ Neverlate.parseShape = function(shapes){
     });
     return shapeCoords;
 };
+
+Neverlate.formatStopInfo = function(precedingLeg, followingLeg) {
+    var result = '';
+    if (precedingLeg != null) { // this is not the beginning
+        if (followingLeg == null) { // this is the end
+            result += 'Arrival to the destination at ';
+        } else {
+            result += 'Arrival at ';
+        }
+
+        result += Neverlate.formatReittiopasTime(precedingLeg.locs[precedingLeg.locs.length-1].depTime) + '<br>';
+    }
+    if (followingLeg != null) { // this is not the end
+        if (followingLeg.type == 'walk') {
+            result += 'Leave at ';
+        } else {
+            result += followingLeg.code.slice(1, 6).trim() + ' leaves at ';
+        }
+        result += Neverlate.formatReittiopasTime(followingLeg.locs[0].arrTime) + '<br>';
+    }
+    return result;
+}
+
+Neverlate.formatReittiopasTime = function(time) {
+    // extract HH:MM
+    return time.toString().slice(8, 10) + ':' + time.toString().slice(10, 12);
+}
 
 var infowindow; // one Google Maps infoWindow instance
 var infowindowtrigger; // the object that the infowindow is currently opened for (e.g. a marker)
