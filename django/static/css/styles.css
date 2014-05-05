@@ -17,8 +17,6 @@
     border-radius: 5%;
     position: relative;
     z-index: 99;
-    height: 500px;
-    width: 500px;
 }
 .stop {
     width: 500px;
