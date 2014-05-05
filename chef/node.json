@@ -1,3 +1,4 @@
 {
+  "postgresql": {"config": {"ssl": false} },
   "run_list": [ "role[neverlate_production]" ]
 }
