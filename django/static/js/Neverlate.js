@@ -178,11 +178,25 @@ Neverlate.getLegColor = function(type) {
 };
 Neverlate.getLegIcon = function(type) {
     var name;
-    // TODO: add icons for other transportation types
-    if (type == 'walk') {
-        name = 'walk.png';
-    } else {
-        name = 'bus.png';
+    switch(type) {
+        case 'walk':
+            name = 'walk.png';
+            break;
+        case '1':case '3':case '4':case '5':case '8':case '21':case '22':case '23':case '24':case '25':case '36':case '39':
+            name = 'bus.png';
+            break;
+        case '2':
+            name = 'tram.png';
+            break;
+        case '6':
+            name = 'metro.png';
+            break;
+        case '7':
+            name = 'ferry.png';
+            break;
+        case '12':
+            name = 'train.png';
+            break;
     }
     return 'static/images/' + name;
 };
@@ -200,23 +214,30 @@ Neverlate.parseShape = function(shapes){
 Neverlate.formatStopInfo = function(precedingLeg, followingLeg) {
     var result = '';
     if (precedingLeg != null) { // this is not the beginning
-        if (followingLeg == null) { // this is the end
-            result += 'Arrival to the destination at ';
-        } else {
-            result += 'Arrival at ';
-        }
-
-        result += Neverlate.formatReittiopasTime(precedingLeg.locs[precedingLeg.locs.length-1].depTime) + '<br>';
+        var lastloc = Neverlate.lastLoc(precedingLeg);
+        result += 'Arrival to ' + lastloc.name + ' at '
+        result += Neverlate.formatReittiopasTime(lastloc.depTime) + '<br>';
     }
     if (followingLeg != null) { // this is not the end
         if (followingLeg.type == 'walk') {
-            result += 'Leave at ';
+            result += 'Leave towards ' +
+                Neverlate.lastLoc(followingLeg).name
+                + ' at ';
         } else {
             result += followingLeg.code.slice(1, 6).trim() + ' leaves at ';
         }
         result += Neverlate.formatReittiopasTime(followingLeg.locs[0].arrTime) + '<br>';
     }
     return result;
+}
+
+/* returns the last location in the leg that includes location name */
+Neverlate.lastLoc = function(leg) {
+    for (var i = leg.locs.length-1; i >= 0; --i) {
+        if (leg.locs[i].name != null) {
+            return leg.locs[i];
+        }
+    }
 }
 
 Neverlate.formatReittiopasTime = function(time) {
