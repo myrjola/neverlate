@@ -18,8 +18,20 @@ $(function () {
         }
     );
 });
+
+Neverlate.getCurrentGeolocation = function() {
+    function printCoords(location) {
+        Neverlate.userCoords = location.coords;
+    }
+    if (Modernizr.geolocation) {
+    navigator.geolocation.getCurrentPosition(printCoords);
+  } else {
+    console.log("no geolocation support");
+  }
+};
+
 Neverlate.getRoute = function (point1coords, point2coords) {
-    var N = Neverlate; // faste to type
+    var N = Neverlate; // faster to type
     var queryOptions = N.API_CREDS +N.COORD_FORMAT+N.DETAIL_LEVEL;
     $.get(
             url = N.CORS+"api.reittiopas.fi/hsl/prod/?request=route&format=json&from="+point1coords+"&to="+point2coords+"&callback=?"+queryOptions,
@@ -60,12 +72,14 @@ Neverlate.loadRoutes = function(point1,point2) {
 
 
 Neverlate.loadAppointments = function() {
+    //Neverlate.getCurrentGeolocation(); //test
     console.log("Loading user appointments");
     var url= "/appointments";
     return $.get(url);
 }
 
-Neverlate.parseAllRoutes = function(data){
+Neverlate.parseAllRoutes = function(data){ // This is the "Main" method, called from html
+    Neverlate.getCurrentGeolocation(); //Get user location from browser is possible
     console.log(Neverlate.loadAppointments());
     var toJson = JSON.parse(data);
     var source = Neverlate.templates.route_front;
