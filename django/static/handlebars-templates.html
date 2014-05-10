@@ -6,16 +6,15 @@
     {{#times 3}}
 
         <div class="jumbotron" id="jumboroute">
-            <div class="panel panel-default" id="panel{{@index}}">
+            <div class="panel panel-default" id="panel{{accum}}">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <a data-toggle="collapse" data-target="#collapse{{@index}}"
-                           href="#collapse{{@index}}">
-                             <div id="routeHeaderLabel"></div>
+                        <a data-toggle="collapse" data-target="#collapse{{accum}}"
+                           href="#collapse{{accum}}">
                         </a>
                     </h4>
                 </div>
-                <div id="collapse{{@index}}" class="panel-collapse collapse in">
+                <div id="collapse{{accum}}" class="panel-collapse collapse in">
                     <div class="panel-body">
                         <p>From: <div id="fromLabel"></div> </p>
                         <p>To: <div id="toLabel"></div> </p>
