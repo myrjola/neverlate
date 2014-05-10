@@ -2,6 +2,9 @@
     padding-bottom: 2px;
     padding-top: 2px;
 }
+.btn-responsive{
+    color: #223c44;
+}
 @media screen and (max-width: 600px) {
     /*this is the mobile version of button*/
     .btn-responsive {
@@ -9,6 +12,32 @@
       width: 100%;
       padding-right: 0;
       padding-left: 0;
+      padding: 6px 12px;
+      margin-top: 6px;
+      margin-bottom: 4px;
+      font-size: 14px;
+      font-weight: normal;
+      line-height: 1.42857143;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      -webkit-user-select: none;
+         -moz-user-select: none;
+          -ms-user-select: none;
+              user-select: none;
+      background-image: none;
+      border: 1px solid transparent;
+      border-radius: 4px;
+    }
+    .btn-responsive:hover,
+    .btn-responsive:focus,
+    .btn-responsive:active,
+    .btn-responsive.active,
+    .open .dropdown-toggle.btn-default {
+      background-color: #ebebeb;
+      border-color: #adadad;
+      color: #444444;
     }
 
     }
@@ -38,9 +67,9 @@
     .btn-responsive:active,
     .btn-responsive.active,
     .open .dropdown-toggle.btn-default {
-      color: #333;
       background-color: #ebebeb;
       border-color: #adadad;
+      color: #444444;
     }
 }
 #jumboroute {
