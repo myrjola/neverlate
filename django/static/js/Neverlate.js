@@ -216,7 +216,7 @@ Neverlate.formatStopInfo = function(precedingLeg, followingLeg) {
     if (precedingLeg != null) { // this is not the beginning
         var lastloc = Neverlate.lastLoc(precedingLeg);
         result += 'Arrival to ' + lastloc.name + ' at '
-        result += Neverlate.formatReittiopasTime(lastloc.depTime) + '<br>';
+        result += Neverlate.formatReittiopasTime(lastloc.arrTime) + '<br>';
     }
     if (followingLeg != null) { // this is not the end
         if (followingLeg.type == 'walk') {
@@ -226,7 +226,7 @@ Neverlate.formatStopInfo = function(precedingLeg, followingLeg) {
         } else {
             result += followingLeg.code.slice(1, 6).trim() + ' leaves at ';
         }
-        result += Neverlate.formatReittiopasTime(followingLeg.locs[0].arrTime) + '<br>';
+        result += Neverlate.formatReittiopasTime(followingLeg.locs[0].depTime) + '<br>';
     }
     return result;
 }
