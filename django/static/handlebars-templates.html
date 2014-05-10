@@ -6,10 +6,23 @@
     {{#times 3}}
 
         <div class="jumbotron" id="jumboroute">
-            <p>From: <div class="fromLabel"></div></p>
-            <p>To: <div class="toLabel"></div> </p>
-            <p>Departure: <div class="departureLabel"></div> </p>
-            <p>Arrival: <div class="arrivalLabel"></div> </p>
+            <div class="panel panel-default" id="panel{{@index}}">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-target="#collapse{{@index}}"
+                           href="#collapse{{@index}}">
+                             <div id="routeHeaderLabel"></div>
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse{{@index}}" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <p>From: <div id="fromLabel"></div> </p>
+                        <p>To: <div id="toLabel"></div> </p>
+                        <p>Arrival: <div id="arrivalLabel"></div> </p>
+                    </div>
+                </div>
+            </div>
             <div class="responsive-btns">
               <button type="button" class="btn btn-default">Input Start Location</button>
               <button type="button" class="btn btn-default">Previous Route</button>
