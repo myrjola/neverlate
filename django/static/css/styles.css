@@ -17,6 +17,7 @@
     width: 70vw;
     min-height: 100%;
     min-width: 100%;
+    visibility: visible;
 }
 .map-canvas {
     visibility: visible;

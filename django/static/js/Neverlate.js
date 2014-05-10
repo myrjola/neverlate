@@ -108,6 +108,7 @@ Neverlate.mapZoom = function(len) {
 Neverlate.loadMap = function(map_canvas, route_data){
     console.log("drawed a map");
     console.log(route_data);
+    $(map_canvas).show();
     var mapOptions = {
         center: new google.maps.LatLng(60.188549397729, 24.833913340551),
         zoom: Neverlate.mapZoom(route_data["length"]) // todo change zoom level depending on the length of route
