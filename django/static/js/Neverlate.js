@@ -106,18 +106,37 @@ Neverlate.parseAllRoutes = function(data){ // This is the "Main" method, called 
     }
 };
 
+Neverlate.calculateMiddleCoord = function(legs) {
+    var startPoint = legs[0].locs[0].coord;
+    var endPoint = legs[legs.length-1].locs[legs[legs.length-1].locs.length-1].coord ;
+    var middlePoint = {};
+    middlePoint.lat = (startPoint.y + endPoint.y)/2;
+    middlePoint.lng = (startPoint.x + endPoint.x)/2;
+    return middlePoint;
+};
+
 Neverlate.mapZoom = function(len) {
-    if (len > 10000) {
-        return 11;
+    if (len < 4000){
+        return 15
     }
-    else return 10;
+    else if (len < 6000){
+        return 14
+    }
+    else if (len < 1000){
+        return 13
+    }
+    else if (len >= 10000) {
+        return 12;
+    }
 }
 Neverlate.loadMap = function(map_canvas, route_data){
     console.log("drawed a map");
     console.log(route_data);
+    var middlePoint = Neverlate.calculateMiddleCoord(route_data["legs"]); // lat, lng
+    console.log( "middle was "+ middlePoint.lat + " and " + middlePoint.lng);
     var mapOptions = {
-        center: new google.maps.LatLng(60.188549397729, 24.833913340551),
-        zoom: Neverlate.mapZoom(route_data["length"]) // todo change zoom level depending on the length of route
+        center: new google.maps.LatLng( middlePoint.lat, middlePoint.lng), // todo center map to the route
+        zoom: Neverlate.mapZoom(route_data["length"]) // change zoom level depending on the length of route
     };
     var map = new google.maps.Map(map_canvas, mapOptions);
 
