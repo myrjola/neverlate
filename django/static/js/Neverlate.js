@@ -116,24 +116,29 @@ Neverlate.calculateMiddleCoord = function(legs) {
 };
 
 Neverlate.mapZoom = function(len) {
+    var w = window.innerWidth
+    var windowSizeOffset = 0; //used to change zoom level in mobile browsers;
+    if (window.innerWidth <700) {
+        windowSizeOffset = -1;
+        console.log("offset was "+ windowSizeOffset);
+    }
     if (len < 4000){
-        return 15
+        return 15 + windowSizeOffset;
     }
     else if (len < 6000){
-        return 14
+        return 14 + windowSizeOffset;
     }
     else if (len < 1000){
-        return 13
+        return 13 + windowSizeOffset;
     }
     else if (len >= 10000) {
-        return 12;
+        return 12 + windowSizeOffset;
     }
 }
 Neverlate.loadMap = function(map_canvas, route_data){
     console.log("drawed a map");
     console.log(route_data);
     var middlePoint = Neverlate.calculateMiddleCoord(route_data["legs"]); // lat, lng
-    console.log( "middle was "+ middlePoint.lat + " and " + middlePoint.lng);
     var mapOptions = {
         center: new google.maps.LatLng( middlePoint.lat, middlePoint.lng), // todo center map to the route
         zoom: Neverlate.mapZoom(route_data["length"]) // change zoom level depending on the length of route
