@@ -15,6 +15,8 @@
 .map-wrapper {
     height: 80vh;
     width: 70vw;
+    min-height: 100%;
+    min-width: 100%;
 }
 .map-canvas {
     visibility: visible;
@@ -23,8 +25,8 @@
     border-radius: 5%;
     position: relative;
     z-index: 99;
-    height: 80vh;
-    width: 70vw;
+    min-height: 100%;
+    min-width: 100%;
 }
 .stop {
     width: 70vw;
