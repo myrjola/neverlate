@@ -19,6 +19,13 @@ $(function () {
     );
 });
 
+Handlebars.registerHelper('times', function(n, block) {
+    var accum = '';
+    for(var i = 0; i < n; ++i)
+        accum += block.fn(i);
+    return accum;
+});
+
 Neverlate.getCurrentGeolocation = function() {
     function printCoords(location) {
         Neverlate.userCoords = location.coords;

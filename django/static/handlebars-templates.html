@@ -3,30 +3,27 @@
 
 <div class="row">
 
-    {{#each legs}}
+    {{#times 3}}
 
         <div class="jumbotron" id="jumboroute">
-        <p>From: <div id="fromLabel"> </p>
-        <p>To: <div id="toLabel"> </p>
-        <p>Departure: <div id="departureLabel"> </p>
-        <p>Arrival: <div id="arrivalLabel"> </p>
-        <div class="btn-group btn-group-lg">
-          <button type="button" class="btn btn-default">Input Start Location</button>
-          <button type="button" class="btn btn-default">Previous Route</button>
-          <button type="button" class="btn btn-default">Next Route</button>
+            <p>From: <div class="fromLabel"></div></p>
+            <p>To: <div class="toLabel"></div> </p>
+            <p>Departure: <div class="departureLabel"></div> </p>
+            <p>Arrival: <div class="arrivalLabel"></div> </p>
+            <div class="btn-group btn-group-lg">
+              <button type="button" class="btn btn-default">Input Start Location</button>
+              <button type="button" class="btn btn-default">Previous Route</button>
+              <button type="button" class="btn btn-default">Next Route</button>
+            </div>
+            <div class="map-wrapper">
+                <div class="map-canvas"></div>
+            </div>
+            <p>Route duration: <div class="durationLabel"></div></p>
+            <p>Route length: <div class="lengthLabel"></div></p>
+            <h3>Stops </h3>
+            <div class="stops"></div>
         </div>
-        <div class="map-wrapper">
-        <div class="map-canvas"></div>
-        </div>
-        <p>Using line {{ code }} </p>
-        <p>Route duration {{duration}}</p>
-        <p>Route length {{length}}</p>
-        <h3> Stops </h3>
-        {{#each locs}}
-            <div class="stop">{{name}}</div>
-            {{/each}}
-        </div>
-    {{/each}}
+    {{/times}}
 </div>
 
 
