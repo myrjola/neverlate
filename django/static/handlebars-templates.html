@@ -1,44 +1,7 @@
 <script id="route_front" type="text/x-handlebars-template">
 
 
-<div class="row">
 
-    {{#times 3}}
-
-        <div class="jumbotron" id="jumboroute">
-            <div class="panel-group" id="accordion">
-                <div class="panel panel-default" id="panel{{this}}">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-target="#collapse{{this}}"
-                               href="#collapse{{this}}">
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="collapse{{accum}}" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <p>From: <div id="fromLabel"></div> </p>
-                            <p>To: <div id="toLabel"></div> </p>
-                            <p>Arrival: <div id="arrivalLabel"></div> </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="responsive-btns">
-              <button type="button" class="btn-responsive">Input Start Location</button>
-              <button type="button" class="btn-responsive">Previous Route</button>
-              <button type="button" class="btn-responsive">Next Route</button>
-            </div>
-            <div class="map-wrapper">
-                <div class="map-canvas"></div>
-            </div>
-            <p>Route duration: <div class="durationLabel"></div></p>
-            <p>Route length: <div class="lengthLabel"></div></p>
-            <h3>Stops </h3>
-            <div class="stops"></div>
-        </div>
-    {{/times}}
-</div>
 
 
 

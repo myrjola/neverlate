@@ -24,8 +24,44 @@
             {% endfor %}
         </div>
         <div id="routes-logged-in">
-            <script> Neverlate.loadRoutes("teekkarikylä","kamppi");</script>
-        <div id="content-placeholder"></div>
+            <script> Neverlate.initialize();</script>
+            <div class="row">
+                {% for i in "xxx" %}
+                    <div class="jumbotron jumboroute">
+                        <div class="panel-group" id="accordion">
+                            <div class="panel panel-default" id="panel{{forloop.counter0}}">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-target="#collapse{{forloop.counter0}}"
+                                           href="#collapse{{forloop.counter0}}">
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapse{{forloop.counter0}}" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <p>From: <span id="fromLabel"></span> </p>
+                                        <p>To: <span id="toLabel"></span> </p>
+                                        <p>Arrival: <span id="arrivalLabel"></span> </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="responsive-btns">
+                          <button type="button" class="btn-responsive">Input Start Location</button>
+                          <button type="button" class="btn-responsive">Previous Route</button>
+                          <button type="button" class="btn-responsive">Next Route</button>
+
+                        </div>
+                        <div class="map-wrapper">
+                            <div class="map-canvas"></div>
+                        </div>
+                        <p>Route duration: <span class="durationLabel"></span></p>
+                        <p>Route length: <span class="lengthLabel"></span></p>
+                        <h3>Stops </h3>
+                        <div class="stops"></div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
 

@@ -1,3 +1,14 @@
+/* Maps map-canvas divs to google map objects */
+var canvas_to_map = {};
+
+/* Maps jumboroute divs to route data */
+var jumboroute_to_route = {};
+
+/* One Google Maps infoWindow instance for showing info on route stops */
+var infowindow;
+
+/* The object that the infowindow is currently opened for (e.g. a marker) */
+var infowindowtrigger;
 
 window.Neverlate = {
     templates: {},
@@ -26,6 +37,16 @@ Handlebars.registerHelper('times', function(n, block) {
     return accum;
 });
 
+/*
+ * Generates a unique hash for an arbitrary object
+*/
+function hash(value) {
+    return (typeof value) + ' ' + (value instanceof Object ?
+        (value.__hash || (value.__hash = ++arguments.callee.current)) :
+        value.toString());
+}
+hash.current = 0;
+
 Neverlate.getCurrentGeolocation = function() {
     function printCoords(location) {
         Neverlate.userCoords = location.coords;
@@ -37,18 +58,58 @@ Neverlate.getCurrentGeolocation = function() {
   }
 };
 
-Neverlate.getRoute = function (point1coords, point2coords) {
-    var N = Neverlate; // faster to type
-    var queryOptions = N.API_CREDS +N.COORD_FORMAT+N.DETAIL_LEVEL;
-    $.get(
-            url = N.CORS+"api.reittiopas.fi/hsl/prod/?request=route&format=json&from="+point1coords+"&to="+point2coords+"&callback=?"+queryOptions,
-            succes = function(response) {
-            console.log("GOT ROUTE FRON REITTIOPAS");
-            Neverlate.parseAllRoutes(response);
-        });
-    };
+/*
+ * Initializes the dashboard page
+*/
+Neverlate.initialize = function() {
+    Neverlate.getCurrentGeolocation(); //Get user location from browser is possible
+    console.log(Neverlate.loadAppointments());
 
-Neverlate.loadRoutes = function(point1,point2) {
+    var s = document.createElement("script");
+    s.type = "text/javascript";
+    s.src  = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAoHieetxNcdqJ4PDij87fi2KH8tOhMK2Y&sensor=true&callback=gmap_loaded";
+    $("head").append(s);
+    window.gmap_loaded = function(){
+        $(".map-canvas").each(function() {
+            Neverlate.createMap($(this)[0]);
+        });
+
+        // TODO: get the starting and ending locations for the appointment
+        var appointments = Neverlate.loadAppointments();
+        var testlocations1 = ["teekkarikylä", "tapiola", "kerava"];
+        var testlocations2 = ["kamppi", "itäkeskus", "suomenlinna"];
+        $(".jumboroute").each(function(index) { // for each appointment to be shown
+            var point1 = testlocations1[index];
+            var point2 = testlocations2[index];
+            Neverlate.loadRouteByAddress(point1, point2, $(this)[0]);
+        });
+    }
+}
+
+Neverlate.loadAppointments = function() {
+    //Neverlate.getCurrentGeolocation(); //test
+    console.log("Loading user appointments");
+    var url= "/appointments";
+    return $.get(url);
+}
+
+/*
+ * Create a map, but don't do anything else with it yet.
+*/
+Neverlate.createMap = function(map_canvas) {
+    console.log("drawed a map");
+    var mapOptions = { // just some initial values until real data is available
+        center: new google.maps.LatLng(60.188549397729, 24.833913340551),
+        zoom: Neverlate.mapZoom(10)
+    };
+    canvas_to_map[hash(map_canvas)] = new google.maps.Map(map_canvas, mapOptions);; // store the map for later access
+}
+
+/*
+ * Finds the coordinates for the given addresses using Reittiopas API
+ * and calls loadRouteByCoordinate to get the actual route data and display it to the user.
+*/
+Neverlate.loadRouteByAddress = function(point1,point2, jumboroute) {
     var point1json = null;
     var point2json = null;
 
@@ -62,7 +123,7 @@ Neverlate.loadRoutes = function(point1,point2) {
             console.log("GOT RESPONSE FRON REITTIOPAS");
             point1json = JSON.parse(response);
             if (point2json != null) { // this in made in pieces because either call can finish first
-                Neverlate.getRoute(point1json[0]["coords"],point2json[0]["coords"]);
+                Neverlate.loadRouteByCoordinate(point1json[0]["coords"],point2json[0]["coords"], jumboroute);
             }
         });
         $.get(
@@ -71,40 +132,47 @@ Neverlate.loadRoutes = function(point1,point2) {
                     console.log("GOT RESPONSE FRON REITTIOPAS");
                     point2json = JSON.parse(response);
                     if (point1json != null) {// this in made in pieces because either call can finish first
-                        Neverlate.getRoute(point1json[0]["coords"], point2json[0]["coords"]); // send only coordinates forward
+                        Neverlate.loadRouteByCoordinate(point1json[0]["coords"], point2json[0]["coords"], jumboroute); // send only coordinates forward
                     }
         })
     })
 }
 
-
-Neverlate.loadAppointments = function() {
-    //Neverlate.getCurrentGeolocation(); //test
-    console.log("Loading user appointments");
-    var url= "/appointments";
-    return $.get(url);
-}
-
-Neverlate.parseAllRoutes = function(data){ // This is the "Main" method, called from html
-    Neverlate.getCurrentGeolocation(); //Get user location from browser is possible
-    console.log(Neverlate.loadAppointments());
-    var toJson = JSON.parse(data);
-    var source = Neverlate.templates.route_front;
-    var template = Handlebars.compile(source);
-    var html = template(toJson[0][0]);
-    $("#content-placeholder").html(html);
-
-    var s = document.createElement("script");
-    s.type = "text/javascript";
-    s.src  = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAoHieetxNcdqJ4PDij87fi2KH8tOhMK2Y&sensor=true&callback=gmap_loaded";
-    $("head").append(s);
-    window.gmap_loaded = function(){
-        // TODO: load a map only for the currently selected route
-        $(".map-canvas").each(function(index) {
-            Neverlate.loadMap($(this)[0], toJson[0][0]);
-        });
-    }
+/*
+ * Fetches a route from Reittiopas.
+ * Stores the route data for later use and display it to the user.
+*/
+Neverlate.loadRouteByCoordinate = function (point1coords, point2coords, jumboroute) {
+    var N = Neverlate; // faster to type
+    var queryOptions = N.API_CREDS +N.COORD_FORMAT+N.DETAIL_LEVEL;
+    $.get(
+        url = N.CORS+"api.reittiopas.fi/hsl/prod/?request=route&format=json&from="+point1coords+"&to="+point2coords+"&callback=?"+queryOptions,
+        succes = function(response) {
+        console.log("GOT ROUTE FRON REITTIOPAS");
+        var toJson = JSON.parse(response);
+        jumboroute_to_route[hash(jumboroute)] = toJson[0]; // store the route for later access
+        Neverlate.showRoute(toJson[0][0], jumboroute); // TODO: choose which of the route options to show
+    });
 };
+
+/*
+ * Shows the given route option to the user
+ */
+Neverlate.showRoute = function(data, jumboroute){
+    var map = canvas_to_map[hash($(jumboroute).find(".map-canvas")[0])];
+    Neverlate.loadMap(map, data);
+    // TODO: call a function to show also the route info outside of the map
+};
+
+/*
+ * Updates the given jumboroute div to show the route option at the given index.
+ * The index can be in the range [0,2] or [0,4] depending on how many routes
+ * were fetched from Reittiopas.
+ */
+Neverlate.updateRoute = function(jumboroute, routeIndex) {
+    var route = jumboroute_to_route[hash(jumboroute)][routeIndex];
+    Neverlate.showRoute(route, jumboroute);
+}
 
 Neverlate.calculateMiddleCoord = function(legs) {
     var startPoint = legs[0].locs[0].coord;
@@ -139,15 +207,12 @@ Neverlate.mapZoom = function(len) {
         return 12 + windowSizeOffset;
     }
 }
-Neverlate.loadMap = function(map_canvas, route_data){
-    console.log("drawed a map");
+
+/*
+ * Display a route on an already existing map.
+*/
+Neverlate.loadMap = function(map, route_data){
     console.log(route_data);
-    var middlePoint = Neverlate.calculateMiddleCoord(route_data["legs"]); // coord-object with lat and lng is returned
-    var mapOptions = {
-        center: new google.maps.LatLng( middlePoint.lat, middlePoint.lng), // center map to the route
-        zoom: Neverlate.mapZoom(route_data["length"]) // change zoom level depending on the length of route
-    };
-    var map = new google.maps.Map(map_canvas, mapOptions);
 
     route_data["legs"].forEach(function (leg){
         Neverlate.drawLeg(leg, map);
@@ -157,7 +222,13 @@ Neverlate.loadMap = function(map_canvas, route_data){
     for (var i = 0; i < route_data["legs"].length-1; ++i)
         Neverlate.drawStop(route_data["legs"][i], route_data["legs"][i+1], map); // the middle
     Neverlate.drawStop(route_data["legs"][route_data["legs"].length-1], null, map); // the end
+
+    // TODO: zoom and position the map correctly
+    var middlePoint = Neverlate.calculateMiddleCoord(route_data["legs"]); // coord-object with lat and lng is returned
+    map.setCenter(new google.maps.LatLng( middlePoint.lat, middlePoint.lng)); // center map to the route
+    map.setZoom(Neverlate.mapZoom(route_data["length"])); // change zoom level depending on the length of route
 };
+
 Neverlate.drawLeg = function(leg, map){
     var locs=[];
     leg.shape.forEach(function (loc){ //locs for stops, shape for drawable route
@@ -193,6 +264,7 @@ Neverlate.drawStop = function(precedingLeg, followingLeg, map){
     });
     Neverlate.addInfoWindow(marker, Neverlate.formatStopInfo(precedingLeg, followingLeg), map);
 };
+
 Neverlate.getLegColor = function(type) {
     switch(type) {
         case 'walk':
@@ -280,8 +352,6 @@ Neverlate.formatReittiopasTime = function(time) {
     return time.toString().slice(8, 10) + ':' + time.toString().slice(10, 12);
 }
 
-var infowindow; // one Google Maps infoWindow instance
-var infowindowtrigger; // the object that the infowindow is currently opened for (e.g. a marker)
 Neverlate.addInfoWindow = function(trigger, content, map){
     if (!infowindow) infowindow = new google.maps.InfoWindow();
     google.maps.event.addListener(trigger, 'click', function() {
@@ -310,6 +380,6 @@ Neverlate.drawNextTransfer = function(){
 
             var from = appointments[0]["fields"]["location"];
             var to = appointments[1]["fields"]["location"];
-            Neverlate.loadRoutes(from, to);
+            Neverlate.loadRouteByAddress(from, to);
         });
 };
