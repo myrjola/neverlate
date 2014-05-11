@@ -1,5 +1,10 @@
+/*global $, Modernizr, Handlebars, google */
+
 /* Maps map-canvas divs to google map objects */
 var canvas_to_map = {};
+
+/* The next appointments as a list */
+var appointments = [];
 
 /* Maps jumboroute divs to route data */
 var jumboroute_to_route = {};
@@ -10,7 +15,7 @@ var infowindow;
 /* The object that the infowindow is currently opened for (e.g. a marker) */
 var infowindowtrigger;
 
-window.Neverlate = {
+var Neverlate = {
     templates: {},
     API_CREDS: "&user=neverlate&pass=neverlate",
     COORD_FORMAT: "&epsg_in=wgs84&epsg_out=wgs84",
@@ -74,17 +79,9 @@ Neverlate.initialize = function() {
             Neverlate.createMap($(this)[0]);
         });
 
-        // TODO: get the starting and ending locations for the appointment
-        var appointments = Neverlate.loadAppointments();
-        var testlocations1 = ["teekkarikylä", "tapiola", "kerava"];
-        var testlocations2 = ["kamppi", "itäkeskus", "suomenlinna"];
-        $(".jumboroute").each(function(index) { // for each appointment to be shown
-            var point1 = testlocations1[index];
-            var point2 = testlocations2[index];
-            Neverlate.loadRouteByAddress(point1, point2, $(this)[0]);
-        });
-    }
-}
+        Neverlate.updateDashboardState();
+    };
+};
 
 Neverlate.loadAppointments = function() {
     //Neverlate.getCurrentGeolocation(); //test
@@ -109,7 +106,7 @@ Neverlate.createMap = function(map_canvas) {
  * Finds the coordinates for the given addresses using Reittiopas API
  * and calls loadRouteByCoordinate to get the actual route data and display it to the user.
 */
-Neverlate.loadRouteByAddress = function(point1,point2, jumboroute) {
+Neverlate.loadRouteByAddress = function(point1, point2, jumboroute, arrival, appointmentIndex) {
     var point1json = null;
     var point2json = null;
 
@@ -123,7 +120,8 @@ Neverlate.loadRouteByAddress = function(point1,point2, jumboroute) {
             console.log("GOT RESPONSE FRON REITTIOPAS");
             point1json = JSON.parse(response);
             if (point2json != null) { // this in made in pieces because either call can finish first
-                Neverlate.loadRouteByCoordinate(point1json[0]["coords"],point2json[0]["coords"], jumboroute);
+                Neverlate.loadRouteByCoordinate(point1json[0]["coords"],point2json[0]["coords"],
+                  jumboroute, arrival, appointmentIndex);
             }
         });
         $.get(
@@ -132,26 +130,36 @@ Neverlate.loadRouteByAddress = function(point1,point2, jumboroute) {
                     console.log("GOT RESPONSE FRON REITTIOPAS");
                     point2json = JSON.parse(response);
                     if (point1json != null) {// this in made in pieces because either call can finish first
-                        Neverlate.loadRouteByCoordinate(point1json[0]["coords"], point2json[0]["coords"], jumboroute); // send only coordinates forward
-                    }
-        })
-    })
-}
+                        Neverlate.loadRouteByCoordinate(point1json[0]["coords"], point2json[0]["coords"],
+                          jumboroute, arrival, appointmentIndex);
+                    };
+        });
+    });
+};
 
 /*
  * Fetches a route from Reittiopas.
  * Stores the route data for later use and display it to the user.
 */
-Neverlate.loadRouteByCoordinate = function (point1coords, point2coords, jumboroute) {
+Neverlate.loadRouteByCoordinate = function (point1coords, point2coords, jumboroute, arrival, appointmentIndex) {
     var N = Neverlate; // faster to type
     var queryOptions = N.API_CREDS +N.COORD_FORMAT+N.DETAIL_LEVEL;
+
+    var arrivalOptions = "";
+    if (arrival) {
+        arrivalOptions = "&time=" + arrival.getHours()+arrival.getMinutes() + "&timetype=arrival";
+    }
+
     $.get(
         url = N.CORS+"api.reittiopas.fi/hsl/prod/?request=route&format=json&from="+point1coords+"&to="+point2coords+"&callback=?"+queryOptions,
         succes = function(response) {
         console.log("GOT ROUTE FRON REITTIOPAS");
-        var toJson = JSON.parse(response);
-        jumboroute_to_route[hash(jumboroute)] = toJson[0]; // store the route for later access
-        Neverlate.showRoute(toJson[0][0], jumboroute); // TODO: choose which of the route options to show
+        var routes = JSON.parse(response)[0];
+        jumboroute_to_route[hash(jumboroute)] = routes; // store the route for later access
+        if (typeof(appointmentIndex) != "undefined") {
+            Neverlate.updateRoutePanel(jumboroute, appointments[appointmentIndex].fields, routes[0]);
+        }
+        Neverlate.showRoute(routes[0], jumboroute); // TODO: choose which of the route options to show
     });
 };
 
@@ -367,19 +375,39 @@ Neverlate.addInfoWindow = function(trigger, content, map){
     });
 };
 
-Neverlate.drawNextTransfer = function(){
+Neverlate.updateDashboardState = function(){
     $.get(
         url = 'appointments',
         success = function(response) {
-            var appointments = JSON.parse(response);
-            console.log(appointments)
+            appointments = JSON.parse(response);
+            // Filter old appointments
             appointments = appointments.filter(function (appointment){
-                return new Date() < new Date(appointment["fields"]["start_time"])
-            })
-            console.log(appointments)
+                return new Date() < new Date(appointment.fields.start_time);
+            });
 
-            var from = appointments[0]["fields"]["location"];
-            var to = appointments[1]["fields"]["location"];
-            Neverlate.loadRouteByAddress(from, to);
+            $(".jumboroute").each(function(i) { // for each appointment to be shown
+                var appointment = appointments[i].fields;
+                from = Neverlate.getCurrentGeolocation();
+                if (i != 0) {
+                    var from = appointments[i-1].fields.location;
+                }
+                var to = appointment.location;
+
+                Neverlate.loadRouteByAddress(from, to, $(this)[0], new Date(appointment.start_time), i);
+            });
         });
+};
+
+Neverlate.updateRoutePanel = function(jumbotron, appointment, route){
+    var panel = $('.panel', jumbotron);
+    var legs = route.legs;
+    panel.find('a').html("Depart " + Neverlate.formatReittiopasTime(legs[0].locs[0].depTime) +
+                         " for " + appointment.summary + " at " + appointment.location);
+    var locationsWithName = legs[0].locs.filter(function( location ) {
+      return location.name;
+    });
+    panel.find('#fromLabel').html(locationsWithName[0].name);
+    panel.find('#toLabel').html(appointment.location);
+    var arrival = Neverlate.formatReittiopasTime(Neverlate.lastLoc(legs[legs.length-1]).arrTime);
+    panel.find('#arrivalLabel').html(arrival);
 };
