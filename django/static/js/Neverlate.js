@@ -1,5 +1,9 @@
 /*global $, Modernizr, Handlebars, google */
 
+String.prototype.repeat = function(num) {
+    return new Array(num+1).join(this);
+};
+
 /* Maps map-canvas divs to google map objects */
 var canvas_to_map = {};
 
@@ -137,6 +141,10 @@ Neverlate.loadRouteByAddress = function(point1, point2, jumboroute, arrival, app
     });
 };
 
+Neverlate.zeroPad = function(number, zeros){
+    return ('0'.repeat(zeros)+number.toString()).slice(-zeros);
+};
+
 /*
  * Fetches a route from Reittiopas.
  * Stores the route data for later use and display it to the user.
@@ -147,11 +155,14 @@ Neverlate.loadRouteByCoordinate = function (point1coords, point2coords, jumborou
 
     var arrivalOptions = "";
     if (arrival) {
-        arrivalOptions = "&time=" + arrival.getHours()+arrival.getMinutes() + "&timetype=arrival";
+        var date = N.zeroPad(arrival.getYear(), 4)+N.zeroPad(arrival.getMonth(),2)+N.zeroPad(arrival.getDate(),2);
+        var time = N.zeroPad(arrival.getHours(), 2) + N.zeroPad(arrival.getMinutes(), 2);
+        arrivalOptions = "&time=" + time + + "&date=" + date + "&timetype=arrival";
     }
 
     $.get(
-        url = N.CORS+"api.reittiopas.fi/hsl/prod/?request=route&format=json&from="+point1coords+"&to="+point2coords+"&callback=?"+queryOptions,
+        url = N.CORS+"api.reittiopas.fi/hsl/prod/?request=route&format=json&from="
+          +point1coords+"&to="+point2coords+"&callback=?"+queryOptions+arrivalOptions,
         succes = function(response) {
         console.log("GOT ROUTE FRON REITTIOPAS");
         var routes = JSON.parse(response)[0];
