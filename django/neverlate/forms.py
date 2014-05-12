@@ -4,12 +4,6 @@ from django.forms.models import BaseInlineFormSet, inlineformset_factory
 from models import UserProfile, User, ICalURL, LocationAlias
 
 
-class UserProfileForm(ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = ['home_adress']
-
-
 class UserForm(ModelForm):
     class Meta:
         model = User

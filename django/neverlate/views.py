@@ -14,7 +14,7 @@ from django.utils.encoding import force_text, smart_bytes
 
 from calparser.models import CalendarEntry
 
-from forms import (UserProfileForm, UserForm, ICalURLForm,
+from forms import (UserForm, ICalURLForm,
                    LocationAliasForm, get_calendar_formset,
                    get_locationalias_formset)
 from tasks import reload_user_calendars
@@ -70,7 +70,6 @@ def register(request):
 
 
 def profile(request):
-    profile_form = None
     user_form = None
     calendar_formset = None
     locationalias_formset = None
@@ -88,16 +87,13 @@ def profile(request):
         calendar_prefix = 'calendar'
         locationalias_prefix = 'locationalias'
         if request.method == 'POST':
-            profile_form = UserProfileForm(
-                request.POST, instance=profile)
             user_form = UserForm(request.POST, instance=user)
             calendar_formset = CalendarFormSet(request.POST, instance=profile,
                                                prefix=calendar_prefix)
             locationalias_formset = LocationAliasFormSet(
                 request.POST, instance=profile, prefix=locationalias_prefix)
 
-            if (profile_form.is_valid() and user_form.is_valid()):
-                profile_form.save()
+            if user_form.is_valid():
                 user_form.save()
                 was_saved = True
 
@@ -113,7 +109,6 @@ def profile(request):
                     instance=profile, prefix=locationalias_prefix)
 
         else:
-            profile_form = UserProfileForm(instance=request.user.userprofile)
             user_form = UserForm(instance=request.user)
             calendar_formset = CalendarFormSet(instance=profile,
                                                prefix=calendar_prefix)
@@ -122,8 +117,6 @@ def profile(request):
 
     return render(request, 'profile.html',
                   {'authenticated': request.user.is_authenticated(),
-                   'was_saved': was_saved,
-                   'profile_form': profile_form,
                    'user_form': user_form,
                    'user_name': request.user.get_username(),
                    'user_id': request.user.id,
