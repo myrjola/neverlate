@@ -148,20 +148,19 @@ Neverlate.loadRouteByCoordinate = function (point1coords, point2coords, jumborou
         console.log("GOT ROUTE FRON REITTIOPAS");
         var routes = JSON.parse(response)[0];
         jumboroute_to_route[hash(jumboroute)] = routes; // store the route for later access
-        if (typeof(appointmentIndex) != "undefined") {
-            Neverlate.updateRoutePanel(jumboroute, appointments[appointmentIndex].fields, routes[0]);
-        }
-        Neverlate.showRoute(routes[0], jumboroute); // TODO: choose which of the route options to show
+        Neverlate.showRoute(routes[0], jumboroute, appointmentIndex); // TODO: choose which of the route options to show
     });
 };
 
 /*
  * Shows the given route option to the user
  */
-Neverlate.showRoute = function(data, jumboroute){
+Neverlate.showRoute = function(data, jumboroute, appointmentIndex){
     var map = canvas_to_map[hash($(jumboroute).find(".map-canvas")[0])];
     Neverlate.loadMap(map, data);
-    // TODO: call a function to show also the route info outside of the map
+    if (typeof(appointmentIndex) != "undefined") {
+        Neverlate.updateRoutePanel(jumboroute, appointments[appointmentIndex].fields, data);
+    }
 };
 
 /*
