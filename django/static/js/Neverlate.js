@@ -542,3 +542,13 @@ Neverlate.changeDestination = function(jumboroutearray) {
             jumboroute, new Date(appointment.start_time));
     }
 };
+
+Neverlate.loadMoreAppointments = function() {
+    var jumbotron = $('.jumbotron')[0].outerHTML;
+    var newJumbotron = jumbotron.replace(/collapse(\d+)+/g, function(match, number) {
+       return 'collapse' + parseInt(number)+1;
+    });
+    $('.row').append(newJumbotron);
+    $('.jumbotron').find('.map-canvas').html('');
+    Neverlate.asyncUpdateDashboardState();
+};
