@@ -1,4 +1,4 @@
-/*global $, Modernizr, Handlebars, google */
+/*global $, Modernizr, google */
 
 String.prototype.repeat = function(num) {
     return new Array(num+1).join(this);
@@ -26,25 +26,6 @@ var Neverlate = {
     DETAIL_LEVEL: "&detail=full",
     CORS: "http://www.corsproxy.com/"
 };
-
-//Load handlebar templates
-$(function () {
-    $(document.createElement("div")).load(
-        "/static/handlebars-templates.html",
-        function () {
-            $(this).find("script").each(function (i, e) {
-                Neverlate.templates[e.id] = e.innerHTML;
-            });
-        }
-    );
-});
-
-Handlebars.registerHelper('times', function(n, block) {
-    var accum = '';
-    for(var i = 0; i < n; ++i)
-        accum += block.fn(i);
-    return accum;
-});
 
 /*
  * Generates a unique hash for an arbitrary object
