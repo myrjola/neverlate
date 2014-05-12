@@ -85,7 +85,7 @@ Neverlate.createMap = function(map_canvas) {
     console.log("drawed a map");
     var mapOptions = { // just some initial values until real data is available
         center: new google.maps.LatLng(60.188549397729, 24.833913340551),
-        zoom: Neverlate.mapZoom(10)
+        zoom: 10
     };
     var map = new google.maps.Map(map_canvas, mapOptions);
     canvas_to_map[hash(map_canvas)] = map; // store the map for later access
@@ -210,7 +210,7 @@ Neverlate.calculateMiddleCoord = function(legs) {
 };
 
 Neverlate.mapZoom = function(len) {
-    var w = window.innerWidth
+    var w = window.innerWidth;
     var windowSizeOffset = 0; //used to change zoom level in mobile browsers;
     if (window.innerWidth <700) {
         windowSizeOffset = -1;
@@ -218,7 +218,7 @@ Neverlate.mapZoom = function(len) {
     }
     if (window.innerWidth >1300) {
         windowSizeOffset = +1;
-        console.log("offset was "+ windowSizeOffset);
+        console.log("offset was "+ windowSizeOffset + " and length was " + len);
     }
     if (len < 4000){
         return 15 + windowSizeOffset;
