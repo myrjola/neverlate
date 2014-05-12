@@ -8,7 +8,7 @@ String.prototype.repeat = function(num) {
 var canvas_to_map = {};
 
 /* The next appointments as a list */
-var appointments = [];
+var jumboroute_to_appointment = {};
 
 /* Maps jumboroute divs to route data */
 var jumboroute_to_route = {};
@@ -53,7 +53,6 @@ Neverlate.getCurrentGeolocation = function() {
 */
 Neverlate.initialize = function() {
     Neverlate.getCurrentGeolocation(); //Get user location from browser is possible
-    console.log(Neverlate.loadAppointments());
 
     var s = document.createElement("script");
     s.type = "text/javascript";
@@ -65,15 +64,12 @@ Neverlate.initialize = function() {
         });
 
         Neverlate.updateDashboardState();
+        $('#inputStartLocationButton').on('click', function (event) {
+            var jumboroutearray = $(event.target).parents('.jumbotron');
+            Neverlate.promptStartLocation(jumboroutearray);
+        });
     };
 };
-
-Neverlate.loadAppointments = function() {
-    //Neverlate.getCurrentGeolocation(); //test
-    console.log("Loading user appointments");
-    var url= "/appointments";
-    return $.get(url);
-}
 
 /*
  * Create a map, but don't do anything else with it yet.
@@ -91,7 +87,7 @@ Neverlate.createMap = function(map_canvas) {
  * Finds the coordinates for the given addresses using Reittiopas API
  * and calls loadRouteByCoordinate to get the actual route data and display it to the user.
 */
-Neverlate.loadRouteByAddress = function(point1, point2, jumboroute, arrival, appointmentIndex) {
+Neverlate.loadRouteByAddress = function(point1, point2, jumboroute, arrival) {
     var point1json = null;
     var point2json = null;
 
@@ -106,7 +102,7 @@ Neverlate.loadRouteByAddress = function(point1, point2, jumboroute, arrival, app
             point1json = JSON.parse(response);
             if (point2json != null) { // this in made in pieces because either call can finish first
                 Neverlate.loadRouteByCoordinate(point1json[0]["coords"],point2json[0]["coords"],
-                  jumboroute, arrival, appointmentIndex);
+                  jumboroute, arrival);
             }
         });
         $.get(
@@ -116,7 +112,7 @@ Neverlate.loadRouteByAddress = function(point1, point2, jumboroute, arrival, app
                     point2json = JSON.parse(response);
                     if (point1json != null) {// this in made in pieces because either call can finish first
                         Neverlate.loadRouteByCoordinate(point1json[0]["coords"], point2json[0]["coords"],
-                          jumboroute, arrival, appointmentIndex);
+                          jumboroute, arrival);
                     };
         });
     });
@@ -130,7 +126,7 @@ Neverlate.zeroPad = function(number, zeros){
  * Fetches a route from Reittiopas.
  * Stores the route data for later use and display it to the user.
 */
-Neverlate.loadRouteByCoordinate = function (point1coords, point2coords, jumboroute, arrival, appointmentIndex) {
+Neverlate.loadRouteByCoordinate = function (point1coords, point2coords, jumboroute, arrival) {
     var N = Neverlate; // faster to type
     var queryOptions = N.API_CREDS +N.COORD_FORMAT+N.DETAIL_LEVEL;
 
@@ -148,19 +144,17 @@ Neverlate.loadRouteByCoordinate = function (point1coords, point2coords, jumborou
         console.log("GOT ROUTE FRON REITTIOPAS");
         var routes = JSON.parse(response)[0];
         jumboroute_to_route[hash(jumboroute)] = routes; // store the route for later access
-        Neverlate.showRoute(routes[0], jumboroute, appointmentIndex); // TODO: choose which of the route options to show
+        Neverlate.showRoute(routes[0], jumboroute); // TODO: choose which of the route options to show
     });
 };
 
 /*
  * Shows the given route option to the user
  */
-Neverlate.showRoute = function(data, jumboroute, appointmentIndex){
+Neverlate.showRoute = function(data, jumboroute){
     var map = canvas_to_map[hash($(jumboroute).find(".map-canvas")[0])];
     Neverlate.loadMap(map, data);
-    if (typeof(appointmentIndex) != "undefined") {
-        Neverlate.updateRoutePanel(jumboroute, appointments[appointmentIndex].fields, data);
-    }
+    Neverlate.updateRoutePanel(jumboroute, data);
 };
 
 /*
@@ -398,7 +392,7 @@ Neverlate.updateDashboardState = function(){
     $.get(
         url = 'appointments',
         success = function(response) {
-            appointments = JSON.parse(response);
+            var appointments = JSON.parse(response);
             // Filter old appointments
             appointments = appointments.filter(function (appointment){
                 return new Date() < new Date(appointment.fields.start_time);
@@ -411,15 +405,16 @@ Neverlate.updateDashboardState = function(){
                     var from = appointments[i-1].fields.location;
                 }
                 var to = appointment.location;
-
-                Neverlate.loadRouteByAddress(from, to, $(this)[0], new Date(appointment.start_time), i);
+                jumboroute_to_appointment[hash($(this)[0])] = appointment;
+                Neverlate.loadRouteByAddress(from, to, $(this)[0], new Date(appointment.start_time));
             });
         });
 };
 
-Neverlate.updateRoutePanel = function(jumbotron, appointment, route){
-    var panel = $('.panel', jumbotron);
+Neverlate.updateRoutePanel = function(jumboroute, route){
+    var panel = $('.panel', jumboroute);
     var legs = route.legs;
+    var appointment = jumboroute_to_appointment[hash(jumboroute)];
     panel.find('a').html("Depart " + Neverlate.formatReittiopasTime(legs[0].locs[0].depTime) +
                          " for " + appointment.summary + " at " + appointment.location);
     var locationsWithName = legs[0].locs.filter(function( location ) {
@@ -429,4 +424,14 @@ Neverlate.updateRoutePanel = function(jumbotron, appointment, route){
     panel.find('#toLabel').html(appointment.location);
     var arrival = Neverlate.formatReittiopasTime(Neverlate.lastLoc(legs[legs.length-1]).arrTime);
     panel.find('#arrivalLabel').html(arrival);
+};
+
+Neverlate.promptStartLocation = function(jumboroutearray) {
+    var currentStartLocation = jumboroutearray.find('#fromLabel').text();
+    var jumboroute = jumboroutearray[0];
+    var startLocation = prompt("New start location", currentStartLocation);
+    if (startLocation != null) {
+        var appointment = jumboroute_to_appointment[hash(jumboroute)];
+        Neverlate.loadRouteByAddress(startLocation, appointment.location, jumboroute, new Date(appointment.start_time));
+    }
 };
