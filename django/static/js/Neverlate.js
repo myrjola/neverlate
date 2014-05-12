@@ -84,7 +84,7 @@ Neverlate.createMap = function(map_canvas) {
         center: new google.maps.LatLng(60.188549397729, 24.833913340551),
         zoom: Neverlate.mapZoom(10)
     };
-    canvas_to_map[hash(map_canvas)] = new google.maps.Map(map_canvas, mapOptions);; // store the map for later access
+    canvas_to_map[hash(map_canvas)] = new google.maps.Map(map_canvas, mapOptions); // store the map for later access
 }
 
 /*
@@ -321,29 +321,57 @@ Neverlate.formatStopInfo = function(precedingLeg, followingLeg) {
     var result = '';
     if (precedingLeg != null) { // this is not the beginning
         var lastloc = Neverlate.lastLoc(precedingLeg);
-        result += 'Arrival to ' + lastloc.name + ' at '
+        result += 'Arrival'
+        if (typeof lastloc.name != 'undefined') {
+            result += ' to ' + lastloc.name;
+        }
+        result += ' at '
         result += Neverlate.formatReittiopasTime(lastloc.arrTime) + '<br>';
     }
     if (followingLeg != null) { // this is not the end
         if (followingLeg.type == 'walk') {
-            result += 'Leave towards ' +
-                Neverlate.lastLoc(followingLeg).name
-                + ' at ';
+            var lastloc = Neverlate.lastLoc(followingLeg);
+            result += 'Leave'
+            if (typeof lastloc.name != 'undefined') {
+                result += ' towards ' + lastloc.name
+            }
+            result += ' at ';
         } else {
-            result += followingLeg.code.slice(1, 6).trim() + ' leaves at ';
+            result += Neverlate.formatLineCode(followingLeg) + ' leaves at ';
         }
         result += Neverlate.formatReittiopasTime(followingLeg.locs[0].depTime) + '<br>';
     }
     return result;
 }
 
+/*
+ * Returns a string that tries to specify the line of the leg in a user-friendly manner.
+*/
+Neverlate.formatLineCode = function(leg) {
+    switch (leg.type) {
+        case '1':case '3':case '4':case '5':case '8':case '21':case '22':case '23':case '24':case '25':case '36':case '39': // bus
+            return leg.code.slice(1, 6).trim().replace(/^0+/, '');
+        case '2': // tram
+            // TODO: test
+            return leg.code.slice(1, 6).trim().replace(/^0+/, '');
+        case '6': // metro
+            return "A metro train";
+        case '7': // ferry
+            return "A ferry";
+        case '12': // commuter train
+            return leg.code.slice(1, 6).trim().replace(/^[0-9]+/, '') + ' train';
+    }
+    return "Unspecified transport";
+}
+
 /* returns the last location in the leg that includes location name */
 Neverlate.lastLoc = function(leg) {
-    for (var i = leg.locs.length-1; i >= 0; --i) {
+    for (var i = leg.locs.length; i-- > 0; ) {
         if (leg.locs[i].name != null) {
             return leg.locs[i];
         }
     }
+    return leg.locs[leg.locs.length-1]; // if none of the legs include a name, just return the last one
 }
 
 Neverlate.formatReittiopasTime = function(time) {
