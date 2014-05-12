@@ -63,7 +63,7 @@ Neverlate.initialize = function() {
             Neverlate.createMap($(this)[0]);
         });
 
-        Neverlate.updateDashboardState();
+        Neverlate.asyncUpdateDashboardState();
         $('#inputStartLocationButton').on('click', function (event) {
             var jumboroutearray = $(event.target).parents('.jumbotron');
             Neverlate.promptStartLocation(jumboroutearray);
@@ -346,7 +346,6 @@ Neverlate.formatLineCode = function(leg) {
         case '1':case '3':case '4':case '5':case '8':case '21':case '22':case '23':case '24':case '25':case '36':case '39': // bus
             return leg.code.slice(1, 6).trim().replace(/^0+/, '');
         case '2': // tram
-            // TODO: test
             return leg.code.slice(1, 6).trim().replace(/^0+/, '');
         case '6': // metro
             return "A metro train";
@@ -388,27 +387,57 @@ Neverlate.addInfoWindow = function(trigger, content, map){
     });
 };
 
-Neverlate.updateDashboardState = function(){
+Neverlate.asyncUpdateDashboardState = function(){
+    var appointments = null;
+    var aliases = null;
     $.get(
         url = 'appointments',
         success = function(response) {
-            var appointments = JSON.parse(response);
-            // Filter old appointments
-            appointments = appointments.filter(function (appointment){
-                return new Date() < new Date(appointment.fields.start_time);
-            });
-
-            $(".jumboroute").each(function(i) { // for each appointment to be shown
-                var appointment = appointments[i].fields;
-                from = Neverlate.getCurrentGeolocation();
-                if (i != 0) {
-                    var from = appointments[i-1].fields.location;
-                }
-                var to = appointment.location;
-                jumboroute_to_appointment[hash($(this)[0])] = appointment;
-                Neverlate.loadRouteByAddress(from, to, $(this)[0], new Date(appointment.start_time));
-            });
+            appointments = JSON.parse(response);
+            if (aliases != null) // got both
+                Neverlate.updateDashboardState(appointments, aliases);
         });
+    $.get(
+        url = 'aliases',
+        success = function(response) {
+            aliases = JSON.parse(response);
+            if (appointments != null) // got both
+                Neverlate.updateDashboardState(appointments, aliases);
+        });
+};
+
+Neverlate.updateDashboardState = function(appointments, aliases) {
+    // Filter old appointments
+    appointments = appointments.filter(function (appointment){
+        return new Date() < new Date(appointment.fields.start_time);
+    });
+
+    $(".jumboroute").each(function(i) { // for each appointment to be shown
+        var appointment = appointments[i].fields;
+        var from = Neverlate.getCurrentGeolocation();
+        if (i != 0) {
+            from = Neverlate.resolveLocation(appointments[i-1].fields.location, aliases);
+        }
+        var to = Neverlate.resolveLocation(appointment.location, aliases);
+        jumboroute_to_appointment[hash($(this)[0])] = appointment;
+        Neverlate.loadRouteByAddress(from, to, $(this)[0], new Date(appointment.start_time));
+    })
+};
+
+/* Takes a location and an array of aliases. If the location matches
+ * any of the aliases, the resolved address is returned. Otherwise
+ * returns the given location.
+*/
+Neverlate.resolveLocation = function(location, aliases) {
+    var resolved = aliases.filter(function(alias) {
+      return alias.fields.alias == location;
+    });
+
+    if (resolved.length > 0) {
+        return resolved[0].fields.location;
+    } else {
+        return location;
+    }
 };
 
 Neverlate.updateRoutePanel = function(jumboroute, route){

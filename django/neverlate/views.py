@@ -49,6 +49,14 @@ def getAppointmentsForUser(request):
         return json
 
 
+@render_to_json()
+def getLocationAliasesForUser(request):
+    if request.method == "GET" and request.user.is_authenticated():
+        aliases = LocationAlias.objects.filter(user=request.user.userprofile)
+        json = serializers.serialize("json", aliases)
+        return json
+
+
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
