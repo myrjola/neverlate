@@ -66,7 +66,11 @@ Neverlate.initialize = function() {
         Neverlate.updateDashboardState();
         $('#inputStartLocationButton').on('click', function (event) {
             var jumboroutearray = $(event.target).parents('.jumbotron');
-            Neverlate.promptStartLocation(jumboroutearray);
+            Neverlate.changeStartLocation(jumboroutearray);
+        });
+        $('#inputDestinationButton').on('click', function (event) {
+            var jumboroutearray = $(event.target).parents('.jumbotron');
+            Neverlate.changeDestination(jumboroutearray);
         });
     };
 };
@@ -452,12 +456,23 @@ Neverlate.updateRoutePanel = function(jumboroute, route) {
     panel.find('#arrivalLabel').html(arrival);
 };
 
-Neverlate.promptStartLocation = function(jumboroutearray) {
+Neverlate.changeStartLocation = function(jumboroutearray) {
     var currentStartLocation = jumboroutearray.find('#fromLabel').text();
     var jumboroute = jumboroutearray[0];
     var startLocation = prompt("New start location", currentStartLocation);
     if (startLocation != null) {
         var appointment = jumboroute_to_appointment[hash(jumboroute)];
         Neverlate.loadRouteByAddress(startLocation, appointment.location, jumboroute, new Date(appointment.start_time));
+    }
+};
+
+Neverlate.changeDestination = function(jumboroutearray) {
+    var jumboroute = jumboroutearray[0];
+    var appointment = jumboroute_to_appointment[hash(jumboroute)];
+    var destination = prompt("New destination", appointment.location);
+    if (destination != null) {
+        var currentStartLocation = jumboroutearray.find('#fromLabel').text();
+        Neverlate.loadRouteByAddress(currentStartLocation, destination,
+            jumboroute, new Date(appointment.start_time));
     }
 };
