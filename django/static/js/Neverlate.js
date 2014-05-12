@@ -80,8 +80,10 @@ Neverlate.createMap = function(map_canvas) {
         center: new google.maps.LatLng(60.188549397729, 24.833913340551),
         zoom: Neverlate.mapZoom(10)
     };
-    canvas_to_map[hash(map_canvas)] = new google.maps.Map(map_canvas, mapOptions); // store the map for later access
-}
+    var map = new google.maps.Map(map_canvas, mapOptions);
+    canvas_to_map[hash(map_canvas)] = map; // store the map for later access
+    return map;
+};
 
 /*
  * Finds the coordinates for the given addresses using Reittiopas API
@@ -142,9 +144,29 @@ Neverlate.loadRouteByCoordinate = function (point1coords, point2coords, jumborou
           +point1coords+"&to="+point2coords+"&callback=?"+queryOptions+arrivalOptions,
         succes = function(response) {
         console.log("GOT ROUTE FRON REITTIOPAS");
-        var routes = JSON.parse(response)[0];
+        var routes = JSON.parse(response);
         jumboroute_to_route[hash(jumboroute)] = routes; // store the route for later access
-        Neverlate.showRoute(routes[0], jumboroute); // TODO: choose which of the route options to show
+        Neverlate.populateRouteButtons(jumboroute, routes);
+        Neverlate.showRoute(routes[0][0], jumboroute); // TODO: choose which of the route options to show
+    });
+};
+
+Neverlate.populateRouteButtons = function(jumboroute, routes) {
+    var buttonGroup = $(jumboroute).find('#routeButtons');
+    buttonGroup.html('');
+    var buttons = routes.forEach(function(route, index) {
+        var buttonId = "routeButton" + index;
+        var departureTime = Neverlate.getRouteDepartureTime(route[0]);
+        buttonGroup.append('<button type="button" class="btn btn-default" id="' +
+                           buttonId + '"><input type="radio">' + departureTime + '</button>');
+        var button = $(jumboroute).find('#' + buttonId);
+        if (index == 0) {
+            button.button('toggle');
+        }
+        button.on('click', function (event) {
+            Neverlate.updateRoute(jumboroute, index);
+        });
+
     });
 };
 
@@ -152,7 +174,7 @@ Neverlate.loadRouteByCoordinate = function (point1coords, point2coords, jumborou
  * Shows the given route option to the user
  */
 Neverlate.showRoute = function(data, jumboroute){
-    var map = canvas_to_map[hash($(jumboroute).find(".map-canvas")[0])];
+    var map = Neverlate.createMap($(jumboroute).find(".map-canvas")[0]);
     Neverlate.loadMap(map, data);
     Neverlate.updateRoutePanel(jumboroute, data);
 };
@@ -163,7 +185,7 @@ Neverlate.showRoute = function(data, jumboroute){
  * were fetched from Reittiopas.
  */
 Neverlate.updateRoute = function(jumboroute, routeIndex) {
-    var route = jumboroute_to_route[hash(jumboroute)][routeIndex];
+    var route = jumboroute_to_route[hash(jumboroute)][routeIndex][0];
     Neverlate.showRoute(route, jumboroute);
 }
 
@@ -411,11 +433,15 @@ Neverlate.updateDashboardState = function(){
         });
 };
 
-Neverlate.updateRoutePanel = function(jumboroute, route){
+Neverlate.getRouteDepartureTime = function(route) {
+    return Neverlate.formatReittiopasTime(route.legs[0].locs[0].depTime);
+};
+
+Neverlate.updateRoutePanel = function(jumboroute, route) {
     var panel = $('.panel', jumboroute);
     var legs = route.legs;
     var appointment = jumboroute_to_appointment[hash(jumboroute)];
-    panel.find('a').html("Depart " + Neverlate.formatReittiopasTime(legs[0].locs[0].depTime) +
+    panel.find('a').html("Depart " + Neverlate.getRouteDepartureTime(route) +
                          " for " + appointment.summary + " at " + appointment.location);
     var locationsWithName = legs[0].locs.filter(function( location ) {
       return location.name;
