@@ -454,6 +454,7 @@ Neverlate.updateRoutePanel = function(jumboroute, route) {
     panel.find('#toLabel').html(appointment.location);
     var arrival = Neverlate.formatReittiopasTime(Neverlate.lastLoc(legs[legs.length-1]).arrTime);
     panel.find('#arrivalLabel').html(arrival);
+    panel.find('#durationLabel').html((route.duration / 60) + " minutes");
 };
 
 Neverlate.changeStartLocation = function(jumboroutearray) {
