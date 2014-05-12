@@ -45,7 +45,7 @@ Neverlate.getCurrentGeolocation = function() {
         Neverlate.userCoords = location.coords;
     }
     if (Modernizr.geolocation) {
-    navigator.geolocation.getCurrentPosition(printCoords);
+    return navigator.geolocation.getCurrentPosition(printCoords);
   } else {
     console.log("no geolocation support");
   }
@@ -107,17 +107,22 @@ Neverlate.loadRouteByAddress = function(point1, point2, jumboroute, arrival) {
     $(document).ready(function () {
         var N = Neverlate; // faste to type
         var queryOptions = N.API_CREDS +N.COORD_FORMAT+N.DETAIL_LEVEL;
-        console.log("loading geocode")
-        $.get(
-            url = N.CORS+"api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key="+point1+queryOptions,
-            succes = function(response) {
-            console.log("GOT RESPONSE FRON REITTIOPAS");
-            point1json = JSON.parse(response);
-            if (point2json != null) { // this in made in pieces because either call can finish first
-                Neverlate.loadRouteByCoordinate(point1json[0]["coords"],point2json[0]["coords"],
-                  jumboroute, arrival);
-            }
-        });
+
+        // If point1 given as geocode
+        if (point1.longitude && point1.latitude) {
+            point1json = [{coords: [point1.longitude,point1.latitude].join(',')}];
+        } else {
+            $.get(
+                url = N.CORS+"api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key="+point1+queryOptions,
+                succes = function(response) {
+                    console.log("GOT RESPONSE FRON REITTIOPAS");
+                    point1json = JSON.parse(response);
+                    if (point2json != null) { // this in made in pieces because either call can finish first
+                        Neverlate.loadRouteByCoordinate(point1json[0]["coords"],point2json[0]["coords"],
+                                                        jumboroute, arrival);
+                    }
+                });
+        }
         $.get(
             url = N.CORS + "api.reittiopas.fi/hsl/prod/?request=geocode&format=json&key=" + point2 + queryOptions,
                 success = function (response) {
@@ -477,7 +482,7 @@ Neverlate.updateDashboardState = function(appointments) {
                            '</div>' +
                            '</div>');
         }
-        var from = Neverlate.getCurrentGeolocation();
+        var from = Neverlate.userCoords;
         if (i != 0) {
             from = appointments[i-1].fields.location;
         }
