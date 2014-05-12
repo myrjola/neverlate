@@ -440,7 +440,11 @@ Neverlate.asyncUpdateDashboardState = function(){
 
 Neverlate.updateDashboardState = function(appointments) {
     // Filter old appointments
-    appointments = appointments.filter(function (appointment){
+    appointments = appointments.filter(function (appointment, index, array){
+        if (index != 0 && appointment.location == array[index-1].location) {
+            // Filter repeating locations, no need to show transfers for those
+            return false;
+        }
         return new Date() < new Date(appointment.fields.start_time);
     });
 
@@ -453,7 +457,7 @@ Neverlate.updateDashboardState = function(appointments) {
         var to = appointment.location;
         jumboroute_to_appointment[hash($(this)[0])] = appointment;
         Neverlate.loadRouteByAddress(from, to, $(this)[0], new Date(appointment.start_time));
-    })
+    });
 };
 
 /* Takes a location and an array of aliases. If the location matches
