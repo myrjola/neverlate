@@ -120,6 +120,7 @@ def profile(request):
                    'user_form': user_form,
                    'user_name': request.user.get_username(),
                    'user_id': request.user.id,
+                   'was_saved': was_saved,
                    'task_id': task_id,
                    'calendar_formset': calendar_formset,
                    'locationalias_formset': locationalias_formset})
