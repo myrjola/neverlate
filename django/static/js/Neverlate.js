@@ -226,11 +226,14 @@ Neverlate.mapZoom = function(len) {
     else if (len < 6000){
         return 14 + windowSizeOffset;
     }
-    else if (len < 1000){
+    else if (len < 10000){
         return 13 + windowSizeOffset;
     }
-    else if (len >= 10000) {
+    else if (len < 22000) {
         return 12 + windowSizeOffset;
+    }
+    else if (len >= 22000) {
+        return 11 + windowSizeOffset;
     }
 }
 
@@ -514,7 +517,7 @@ Neverlate.updateRoutePanel = function(jumboroute, route) {
     stopLabel.html('');
     [null].concat(legs).concat(null).forEach(function (leg, index, array) {
         if (index!=0) {
-            stopLabel.append(Neverlate.formatStopInfo(array[index-1], array[index]));
+            stopLabel.append("<div class=\"stop\">" + Neverlate.formatStopInfo(array[index-1], array[index])+"</div>");
         }
     });
 };
