@@ -442,6 +442,7 @@ Neverlate.asyncUpdateDashboardState = function(){
 };
 
 Neverlate.updateDashboardState = function(appointments) {
+    $('.datepanel').remove();
     // Filter old appointments
     appointments = appointments.filter(function (appointment, index, array){
         if (index != 0 && appointment.fields.location == array[index-1].fields.location) {
@@ -450,6 +451,8 @@ Neverlate.updateDashboardState = function(appointments) {
         }
         return new Date() < new Date(appointment.fields.start_time);
     });
+
+    var printedDays = [];
 
     $(".jumboroute").each(function(i) { // for each appointment to be shown
         var appointment = appointments[i];
@@ -463,13 +466,24 @@ Neverlate.updateDashboardState = function(appointments) {
             return;
         }
         appointment = appointment.fields;
+        var startDate = new Date(appointment.start_time);
+        if (printedDays.indexOf(startDate.getDate()) == -1) {
+            printedDays.push(startDate.getDate());
+            $(this).before('<div class="panel panel-default datepanel">' +
+                           '<div class="panel-heading">' +
+                           '<h2 class="panel-title">' +
+                           startDate.toDateString() +
+                           '</h2>' +
+                           '</div>' +
+                           '</div>');
+        }
         var from = Neverlate.getCurrentGeolocation();
         if (i != 0) {
             from = appointments[i-1].fields.location;
         }
         var to = appointment.location;
         jumboroute_to_appointment[hash($(this)[0])] = appointment;
-        Neverlate.loadRouteByAddress(from, to, $(this)[0], new Date(appointment.start_time));
+        Neverlate.loadRouteByAddress(from, to, $(this)[0], startDate);
     });
 };
 
