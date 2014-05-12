@@ -490,6 +490,13 @@ Neverlate.updateRoutePanel = function(jumboroute, route) {
     var arrival = Neverlate.formatReittiopasTime(Neverlate.lastLoc(legs[legs.length-1]).arrTime);
     panel.find('#arrivalLabel').html(arrival);
     panel.find('#durationLabel').html((route.duration / 60) + " minutes");
+    var stopLabel = panel.find('#stopsLabel');
+    stopLabel.html('');
+    [null].concat(legs).concat(null).forEach(function (leg, index, array) {
+        if (index!=0) {
+            stopLabel.append(Neverlate.formatStopInfo(array[index-1], array[index]));
+        }
+    });
 };
 
 Neverlate.changeStartLocation = function(jumboroutearray) {
