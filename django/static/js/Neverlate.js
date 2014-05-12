@@ -441,7 +441,7 @@ Neverlate.asyncUpdateDashboardState = function(){
 Neverlate.updateDashboardState = function(appointments) {
     // Filter old appointments
     appointments = appointments.filter(function (appointment, index, array){
-        if (index != 0 && appointment.location == array[index-1].location) {
+        if (index != 0 && appointment.fields.location == array[index-1].fields.location) {
             // Filter repeating locations, no need to show transfers for those
             return true;
         }
@@ -496,7 +496,13 @@ Neverlate.updateRoutePanel = function(jumboroute, route) {
     var appointment = jumboroute_to_appointment[hash(jumboroute)];
     panel.find('a').html("Depart " + Neverlate.getRouteDepartureTime(route) +
                          " for " + appointment.summary + " at " + appointment.location);
-    var locationsWithName = legs[0].locs.filter(function( location ) {
+    // sometimes the first leg doesn't have a name in any locations
+    var nextLeg = legs[1];
+    var nextLegLocations = [];
+    if (nextLeg) {
+        nextLegLocations = nextLeg.locs;
+    }
+    var locationsWithName = legs[0].locs.concat(nextLegLocations).filter(function( location ) {
       return location.name;
     });
     panel.find('#fromLabel').html(locationsWithName[0].name);
