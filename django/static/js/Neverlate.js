@@ -19,6 +19,9 @@ var infowindow;
 /* The object that the infowindow is currently opened for (e.g. a marker) */
 var infowindowtrigger;
 
+/* An array of location aliases */
+var aliases = null;
+
 var Neverlate = {
     templates: {},
     API_CREDS: "&user=neverlate&pass=neverlate",
@@ -96,6 +99,10 @@ Neverlate.createMap = function(map_canvas) {
 Neverlate.loadRouteByAddress = function(point1, point2, jumboroute, arrival) {
     var point1json = null;
     var point2json = null;
+
+    // resolve location aliases
+    point1 = Neverlate.resolveLocation(point1, aliases);
+    point2 = Neverlate.resolveLocation(point2, aliases);
 
     $(document).ready(function () {
         var N = Neverlate; // faste to type
@@ -415,24 +422,23 @@ Neverlate.addInfoWindow = function(trigger, content, map){
 
 Neverlate.asyncUpdateDashboardState = function(){
     var appointments = null;
-    var aliases = null;
     $.get(
         url = 'appointments',
         success = function(response) {
             appointments = JSON.parse(response);
             if (aliases != null) // got both
-                Neverlate.updateDashboardState(appointments, aliases);
+                Neverlate.updateDashboardState(appointments);
         });
     $.get(
         url = 'aliases',
         success = function(response) {
             aliases = JSON.parse(response);
             if (appointments != null) // got both
-                Neverlate.updateDashboardState(appointments, aliases);
+                Neverlate.updateDashboardState(appointments);
         });
 };
 
-Neverlate.updateDashboardState = function(appointments, aliases) {
+Neverlate.updateDashboardState = function(appointments) {
     // Filter old appointments
     appointments = appointments.filter(function (appointment){
         return new Date() < new Date(appointment.fields.start_time);
@@ -442,9 +448,9 @@ Neverlate.updateDashboardState = function(appointments, aliases) {
         var appointment = appointments[i].fields;
         var from = Neverlate.getCurrentGeolocation();
         if (i != 0) {
-            from = Neverlate.resolveLocation(appointments[i-1].fields.location, aliases);
+            from = appointments[i-1].fields.location;
         }
-        var to = Neverlate.resolveLocation(appointment.location, aliases);
+        var to = appointment.location;
         jumboroute_to_appointment[hash($(this)[0])] = appointment;
         Neverlate.loadRouteByAddress(from, to, $(this)[0], new Date(appointment.start_time));
     })
