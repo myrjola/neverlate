@@ -443,13 +443,23 @@ Neverlate.updateDashboardState = function(appointments) {
     appointments = appointments.filter(function (appointment, index, array){
         if (index != 0 && appointment.location == array[index-1].location) {
             // Filter repeating locations, no need to show transfers for those
-            return false;
+            return true;
         }
         return new Date() < new Date(appointment.fields.start_time);
     });
 
     $(".jumboroute").each(function(i) { // for each appointment to be shown
-        var appointment = appointments[i].fields;
+        var appointment = appointments[i];
+        if (!appointment) {
+            if (i == 0) {
+                $(this).html(
+                    'No next appointments found. Setup calendar in your <a href="profile">profile</a>.');
+                return;
+            }
+            this.remove();
+            return;
+        }
+        appointment = appointment.fields;
         var from = Neverlate.getCurrentGeolocation();
         if (i != 0) {
             from = appointments[i-1].fields.location;
