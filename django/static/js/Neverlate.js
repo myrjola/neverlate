@@ -443,7 +443,7 @@ Neverlate.updateDashboardState = function(appointments) {
     appointments = appointments.filter(function (appointment, index, array){
         if (index != 0 && appointment.fields.location == array[index-1].fields.location) {
             // Filter repeating locations, no need to show transfers for those
-            return true;
+            return false;
         }
         return new Date() < new Date(appointment.fields.start_time);
     });
