@@ -544,9 +544,10 @@ Neverlate.changeDestination = function(jumboroutearray) {
 };
 
 Neverlate.loadMoreAppointments = function() {
-    var jumbotron = $('.jumbotron')[0].outerHTML;
+    var jumbotron = $('.jumbotron')[$('.jumbotron').length-1].outerHTML;
+    // We have to increment the panel collapse id
     var newJumbotron = jumbotron.replace(/collapse(\d+)+/g, function(match, number) {
-       return 'collapse' + parseInt(number)+1;
+       return 'collapse' + (parseInt(number)+1);
     });
     $('.row').append(newJumbotron);
     $('.jumbotron').find('.map-canvas').html('');
